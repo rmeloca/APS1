@@ -7,7 +7,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "token.h"
+#include "Headers/token.h"
 
 struct {
     char *tipo;
@@ -44,7 +44,7 @@ int carregarBanco(FILE *banco) {
  */
 int main(int argc, char** argv) {
     FILE *file;
-    file = fopen("create.sql", "r");
+    file = fopen("Arquivos/create.sql", "r");
     TokenReader *tokenReader;
     char *linha;
     char *token;

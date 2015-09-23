@@ -11,7 +11,7 @@ Data: 07/11/14
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include "token.h"
+#include "Headers/token.h"
 
 void setTokenString(TokenReader *reader, char* str) {
     reader->length = strlen(str);

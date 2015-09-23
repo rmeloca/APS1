@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "stack.h"
-#include "token.h"
+#include "Headers/stack.h"
+#include "Headers/token.h"
 
 int identifyDelimiter(char *str) {
     if (*str == '(') {
@@ -39,7 +39,7 @@ int main() {
     TokenReader *reader;
     Stack *stack;
 
-    file = fopen("expressao.txt", "r");
+    file = fopen("Arquivos/expressao.txt", "r");
     s = (char*) calloc(1000, sizeof (char));
     fgets(s, 1000, file);
 
