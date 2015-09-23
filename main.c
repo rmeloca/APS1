@@ -31,6 +31,7 @@ struct {
 
 #define boolean short int;
 //encapsular corretamente
+//encapsular corretamente
 
 int persistirBanco(Banco *banco) {
 }
