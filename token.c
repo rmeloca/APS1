@@ -27,7 +27,6 @@ TokenReader* newTokenReader(char *str) {
 }
 
 void freeTokenReader(TokenReader *reader) {
-//    free(reader->str);
     free(reader);
 }
 

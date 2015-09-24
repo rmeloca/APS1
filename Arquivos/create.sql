@@ -5,7 +5,7 @@ CREATE TABLE Departamento(
 	Data_inicio_gerente boolean
 );
 
-CREATE TABLE Funcionario (
+Create TABLE Funcionario (
 	Pnome varchar(20),
 	Minicial varchar(20),
 	Unome varchar(20),
@@ -18,12 +18,12 @@ CREATE TABLE Funcionario (
 	Dnr INTEGER
 );
 
-CREATE TABLE Localizacao_dep(
+create TABLE Localizacao_dep(
 	Dnumero integer,
         Dlocal varchar(20)
 );
 
-CREATE TABLE Projeto(
+cREAtE TABLE Projeto(
         Projnome varchar(20),
 	Projnumero integer,
         Projlocal varchar(20),
