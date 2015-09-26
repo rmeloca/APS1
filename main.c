@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "Headers/token.h"
 
 typedef struct campo Campo;
@@ -49,70 +50,30 @@ struct persistencia {
     int limiteBlocos;
 };
 
-
 //encapsular corretamente
-int persistirBanco(Banco* banco);
-Banco* carregarBanco();
-void lerArquivo();
+Persistencia* criarPersistencia(char* nomeArquivoBanco);
 Banco* criarBanco();
 Tabela* criarTabela(char* nome);
 Campo* criarCampo(char* nome, Tipo tipo, int bytes);
 void adicionarTabela(Banco* banco, Tabela* tabela);
 void adicionarCampo(Tabela* tabela, Campo* campo);
+int persistirBanco(Banco* banco, char* nomeArquivoBanco);
+Banco* carregarBanco(char* nomeArquivoBanco);
+void interpretarCreateTable(char* nomeArquivo);
+void gerarBloco();
 
-/*
- * 
- */
+Banco* banco;
+Persistencia* persistencia;
+
 int main(int argc, char** argv) {
-    FILE* file;
-    TokenReader* tokenReader;
-    char* linha;
-    char* token;
+    char* nomeArquivo;
 
-    file = fopen("Arquivos/create.sql", "r");
-    linha = (char*) calloc(1000, sizeof (char));
-
-    while (fgets(linha, 1000, file) != NULL) {
-        tokenReader = newTokenReader(linha);
-        while ((token = nextToken(tokenReader)) != NULL) {
-            if (!strcasecmp(token, "CREATE")) {
-                printf("%s\n", token);
-                token = nextToken(tokenReader);
-                printf("%s\n", token);
-                token = nextToken(tokenReader);
-                printf("%s\n", token);
-            }
-            //            if (strcmp(token, ' ') == 0) {
-            //            if (*token == '') {
-            //                printf("%s\n", token);
-            //                printf("ESPAÇO\n");
-            //            }
-        }
+    persistencia = criarPersistencia("Banco.MRdb");
+    banco = carregarBanco(persistencia->nomeArquivoBanco);
+    if (banco == NULL) {
+        banco = criarBanco();
     }
-    //read & create
-    fclose(file);
 
-    //*********************
-    Banco* banco;
-    Tabela* tabela;
-    Campo* campo;
-
-    banco = criarBanco();
-
-    tabela = criarTabela("empregados");
-    adicionarTabela(banco, tabela);
-
-    campo = criarCampo("Dnome", VARCHAR, 20);
-    adicionarCampo(tabela, campo);
-
-    campo = criarCampo("Dnumero", INTEGER, 4);
-    adicionarCampo(tabela, campo);
-
-    persistirBanco(banco);
-    banco = carregarBanco();
-
-
-    //*********************
     int option = 1;
     while (option) {
         printf("-------------------\n");
@@ -127,6 +88,10 @@ int main(int argc, char** argv) {
         switch (option) {
             case 1:
                 printf("Informe o nome do arquivo: ");
+                scanf("%s", nomeArquivo);
+                interpretarCreateTable(nomeArquivo);
+                persistirBanco(banco, persistencia->nomeArquivoBanco);
+                gerarBloco();
                 break;
             case 2:
                 printf("Informe o nome do arquivo: ");
@@ -143,7 +108,16 @@ int main(int argc, char** argv) {
     return (EXIT_SUCCESS);
 }
 
-Banco* criarBanco() {
+Persistencia* criarPersistencia(char* nomeArquivoBanco) {
+    Persistencia* persistencia = (Persistencia*) malloc(sizeof (Persistencia));
+    persistencia->limiteBlocos = MAXIMO_BLOCOS;
+    persistencia->nomeArquivoBanco = (char*) calloc(strlen(nomeArquivoBanco), sizeof (char));
+    strcpy(persistencia->nomeArquivoBanco, nomeArquivoBanco);
+    persistencia->numeroBlocos = 0;
+    return persistencia;
+}
+
+Banco * criarBanco() {
     Banco* banco = (Banco*) malloc(sizeof (Banco));
     banco->limiteTabelas = MAXIMO_TABELAS;
     banco->tabelas = (Tabela**) calloc(banco->limiteTabelas, sizeof (Tabela*));
@@ -151,18 +125,20 @@ Banco* criarBanco() {
     return banco;
 }
 
-Tabela* criarTabela(char* nome) {
+Tabela * criarTabela(char* nome) {
     Tabela* tabela = (Tabela*) malloc(sizeof (Tabela));
     tabela->limiteCampos = MAXIMO_CAMPOS;
     tabela->campos = (Campo**) calloc(tabela->limiteCampos, sizeof (Campo*));
-    tabela->nome = nome;
+    tabela->nome = (char*) calloc(strlen(nome), sizeof (char));
+    strcpy(tabela->nome, nome);
     tabela->numeroCampos = 0;
     return tabela;
 }
 
-Campo* criarCampo(char* nome, Tipo tipo, int bytes) {
+Campo * criarCampo(char* nome, Tipo tipo, int bytes) {
     Campo* campo = (Campo*) malloc(sizeof (Campo));
-    campo->nome = nome;
+    campo->nome = (char*) calloc(strlen(nome), sizeof (char));
+    strcpy(campo->nome, nome);
     campo->tipo = tipo;
     campo->bytes = bytes;
     return campo;
@@ -176,7 +152,7 @@ void adicionarTabela(Banco* banco, Tabela * tabela) {
     banco->numeroTabelas++;
 }
 
-void adicionarCampo(Tabela * tabela, Campo* campo) {
+void adicionarCampo(Tabela * tabela, Campo * campo) {
     if (tabela->numeroCampos == tabela->limiteCampos) {
         //dobra tamanho do vetor e realoca
     }
@@ -184,9 +160,9 @@ void adicionarCampo(Tabela * tabela, Campo* campo) {
     tabela->numeroCampos++;
 }
 
-int persistirBanco(Banco* banco) {
+int persistirBanco(Banco * banco, char* nomeArquivoBanco) {
     FILE* file;
-    file = fopen("Banco.MRdb", "wb");
+    file = fopen(nomeArquivoBanco, "wb");
     if (file == NULL) {
         return 0;
     }
@@ -195,9 +171,9 @@ int persistirBanco(Banco* banco) {
     return 1;
 }
 
-Banco* carregarBanco() {
+Banco * carregarBanco(char* nomeArquivoBanco) {
     FILE* file;
-    file = fopen("Banco.MRdb", "rb");
+    file = fopen(nomeArquivoBanco, "rb");
     if (file == NULL) {
         return NULL;
     }
@@ -205,4 +181,71 @@ Banco* carregarBanco() {
     fread(banco, sizeof (Banco), 1, file);
     fclose(file);
     return banco;
+}
+
+void interpretarCreateTable(char* nomeArquivo) {
+    FILE* file;
+    TokenReader* tokenReader;
+    Tabela* tabela;
+    Campo* campo;
+    char* linha;
+    char* token;
+    char* nomeCampo;
+    Tipo tipoCampo;
+    int bytesCampo;
+
+    file = fopen(nomeArquivo, "r");
+    linha = (char*) calloc(1000, sizeof (char));
+
+    //Para todo arquivo
+    while (fgets(linha, 1000, file) != NULL) {
+        tokenReader = newTokenReader(linha);
+
+        //Para cada CREATE TABLE
+        while (hasMoreTokens(tokenReader)) {
+            token = nextToken(tokenReader);
+
+            if (!strcasecmp(token, "TABLE")) {
+                token = nextToken(tokenReader);
+                tabela = criarTabela(token);
+                adicionarTabela(banco, tabela);
+
+                //Para cada campo
+                while (1) {
+                    fgets(linha, 1000, file);
+                    setTokenString(tokenReader, linha);
+
+                    nomeCampo = nextToken(tokenReader);
+                    if (!strcasecmp(nomeCampo, ")")) {
+                        break;
+                    }
+
+                    token = nextToken(tokenReader);
+                    if (!strcasecmp(token, "INTEGER")) {
+                        tipoCampo = INTEGER;
+                        bytesCampo = 4;
+                    } else if (!strcasecmp(token, "BOOLEAN")) {
+                        tipoCampo = BOOLEAN;
+                        bytesCampo = 1;
+                    } else {
+                        if (!strcasecmp(token, "CHAR")) {
+                            tipoCampo = CHAR;
+                        } else if (!strcasecmp(token, "VARCHAR")) {
+                            tipoCampo = VARCHAR;
+                        }
+                        token = nextToken(tokenReader);
+                        token = nextToken(tokenReader);
+                        bytesCampo = atoi(token);
+                    }
+                    campo = criarCampo(nomeCampo, tipoCampo, bytesCampo);
+                    adicionarCampo(tabela, campo);
+                }
+            }
+        }
+    }
+    fclose(file);
+}
+
+void gerarBloco() {
+
 }

@@ -12,4 +12,4 @@ run:
 clean:
 	rm -rf *.o
 mrproper: clean
-	rm -rf main
+	rm -rf main casamento
