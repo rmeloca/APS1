@@ -89,7 +89,8 @@ int main(int argc, char** argv) {
             case 1:
                 printf("Informe o nome do arquivo: ");
                 scanf("%s", nomeArquivo);
-                interpretarCreateTable(nomeArquivo);
+                interpretarCreateTable("Arquivos/create.sql");
+                //                interpretarCreateTable(nomeArquivo);
                 persistirBanco(banco, persistencia->nomeArquivoBanco);
                 gerarBloco();
                 break;
@@ -248,4 +249,7 @@ void interpretarCreateTable(char* nomeArquivo) {
 
 void gerarBloco() {
 
+}
+
+void imprimir() {
 }
