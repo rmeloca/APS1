@@ -67,7 +67,7 @@ Persistencia* persistencia;
 
 int main(int argc, char** argv) {
     char* nomeArquivo;
-
+    
     persistencia = criarPersistencia("Banco.MRdb");
     banco = carregarBanco(persistencia->nomeArquivoBanco);
     if (banco == NULL) {
@@ -252,4 +252,12 @@ void gerarBloco() {
 }
 
 void imprimir() {
+}
+
+void gerarBloco() {
+    FILE* file = fopen("bloco01.data", "w");
+    int i, n = 0;
+
+    fwrite(&n, int sizeof (int), 500, file);
+    fclose(file);
 }
