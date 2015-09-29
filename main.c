@@ -70,7 +70,7 @@ Persistencia* persistencia;
 
 int main(int argc, char** argv) {
     char* nomeArquivo;
-    
+
     persistencia = criarPersistencia("Banco.MRdb");
     banco = carregarBanco(persistencia->nomeArquivoBanco);
     if (banco == NULL) {
@@ -151,6 +151,7 @@ Campo * criarCampo(char* nome, Tipo tipo, int bytes) {
 void adicionarTabela(Banco* banco, Tabela * tabela) {
     if (banco->numeroTabelas == banco->limiteTabelas) {
         //dobra tamanho do vetor e realoca
+        return;
     }
     banco->tabelas[banco->numeroTabelas] = tabela;
     banco->numeroTabelas++;
@@ -159,6 +160,7 @@ void adicionarTabela(Banco* banco, Tabela * tabela) {
 void adicionarCampo(Tabela * tabela, Campo * campo) {
     if (tabela->numeroCampos == tabela->limiteCampos) {
         //dobra tamanho do vetor e realoca
+        return;
     }
     tabela->campos[tabela->numeroCampos] = campo;
     tabela->numeroCampos++;
@@ -251,16 +253,15 @@ void interpretarCreateTable(char* nomeArquivo) {
 }
 
 void gerarBloco() {
-
-}
-
-void imprimir() {
-}
-
-void gerarBloco() {
     FILE* file = fopen("bloco01.data", "w");
     int i, n = 0;
 
-    fwrite(&n, int sizeof (int), 500, file);
+    for (i = 0; i < 500; i++) {
+        fwrite(&n, sizeof (int), 1, file);
+    }
+
     fclose(file);
+}
+
+void imprimir() {
 }
