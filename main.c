@@ -53,7 +53,7 @@ struct persistencia {
     int limiteBlocos;
 };
 
-//encapsular corretamente
+//encapsular corretamente em arquivos
 Persistencia* criarPersistencia(char* nomeArquivoBanco);
 Banco* criarBanco();
 Tabela* criarTabela(char* nome);
