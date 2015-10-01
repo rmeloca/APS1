@@ -80,16 +80,15 @@ int main() {
     }
 
     int option;
-    //    int option = 1;
-    //    while (option) {
     do {
-        printf("-------------------\n");
-        printf("1: Criar tabelas\n"
-                "2: Inserir dados\n"
-                "3: Listar dados\n"
-                "2: Remover dados\n"
-                "0: Sair do sistema\n");
-        printf("-------------------\n");
+        //        printf("-------------------\n");
+        printf("1: Criar tabelas\t"
+                "2: Inserir registros\t"
+                "3: Listar registros\t"
+                "4: Excluir registros\t"
+                "0: Sair\t");
+        //        printf("-------------------\n");
+        printf("\n");
         printf("Escolha uma opção: ");
         scanf("%d", &option);
         switch (option) {
@@ -101,6 +100,7 @@ int main() {
                 persistirBanco(banco, persistencia->nomeArquivoBanco);
                 gerarBloco("bloco01.dat");
                 inicializarArquivo("bloco01.dat");
+                printf("Tabelas criadas com sucesso\n");
                 break;
             case 2:
                 printf("Informe o nome do arquivo: ");
@@ -111,9 +111,11 @@ int main() {
             case 4:
                 printf("Informe o nome do arquivo: ");
                 break;
+            case 5:
+                imprimirBanco(banco);
+                break;
         }
-        imprimirBanco(banco);
-        //    }
+        printf("\n");
     } while (option);
 
     return (EXIT_SUCCESS);
@@ -196,6 +198,8 @@ Banco* carregarBanco(char* nomeArquivoBanco) {
     return banco;
 }
 
+//corrigir tabulações
+
 void interpretarCreateTable(char* nomeArquivo) {
     FILE* file;
     TokenReader* tokenReader;
@@ -271,6 +275,11 @@ void gerarBloco(char* nomeArquivo) {
 }
 
 void inicializarArquivo(char* nomeArquivo) {
+    FILE* file = fopen(nomeArquivo, "r+");
+    int n = 2000;
+    fseek(file, 4, 0);
+    fwrite(&n, sizeof (int), 1, file);
+    fclose(file);
 }
 
 void imprimirBanco(Banco* banco) {
@@ -278,12 +287,18 @@ void imprimirBanco(Banco* banco) {
     Campo* campo;
     printf("Número Tabelas: %d\n", banco->numeroTabelas);
     printf("Limite Tabelas: %d\n", banco->limiteTabelas);
-    int i;
-    for (i = 0; i < banco->limiteTabelas; i++) {
-//        tabela = banco->limiteTabelas[i];
-        printf("---------\n");
-//        printf("%s\n", banco->limiteTabelas);
-        tabela->nome;
-        printf("---------\n");
+    int i, j;
+    for (i = 0; i < banco->numeroTabelas; i++) {
+        tabela = banco->tabelas[i];
+        printf("----%s----\n", tabela->nome);
+        printf("Número Campos: %d\n", tabela->numeroCampos);
+        printf("Limite Campos: %d\n", tabela->limiteCampos);
+        for (j = 0; j < tabela->numeroCampos; j++) {
+            campo = tabela->campos[j];
+            printf("\n");
+            printf("Campo: %s\n", campo->nome);
+            printf("Tipo: %d\n", campo->tipo);
+            printf("Bytes: %d\n", campo->bytes);
+        }
     }
 }

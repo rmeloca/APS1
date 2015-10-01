@@ -49,7 +49,7 @@ char* nextToken(TokenReader *reader) {
     }
     int i = reader->pos;
     char *token;
-    while (isalnum(reader->str[i])) {
+    while (isalnum(reader->str[i]) || reader->str[i] == '_') {
         i++;
     }
     if (i == reader->pos) {
