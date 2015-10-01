@@ -273,12 +273,16 @@ void gerarBloco(char* nomeArquivo) {
 
     fclose(file);
 }
-
+// Gambiarra monstra, mas assim ele grava 2000
 void inicializarArquivo(char* nomeArquivo) {
     FILE* file = fopen(nomeArquivo, "r+");
-    int n = 2000;
+    short int n = 7;
+    short int n1 = 208;
     fseek(file, 4, 0);
-    fwrite(&n, sizeof (int), 1, file);
+    putc(n, file);
+    fseek(file, 5, 0);
+    putc(n1, file);
+    //fwrite(&n, sizeof(short int), 1, file);
     fclose(file);
 }
 
