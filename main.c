@@ -63,7 +63,9 @@ void adicionarCampo(Tabela* tabela, Campo* campo);
 int persistirBanco(Banco* banco, char* nomeArquivoBanco);
 Banco* carregarBanco(char* nomeArquivoBanco);
 void interpretarCreateTable(char* nomeArquivo);
-void gerarBloco();
+void gerarBloco(char* nomeArquivo);
+void inicializarArquivo(char* nomeArquivo);
+void imprimir();
 
 Banco* banco;
 Persistencia* persistencia;
@@ -72,7 +74,7 @@ int main(int argc, char** argv) {
     char* nomeArquivo;
 
     persistencia = criarPersistencia("Banco.MRdb");
-    banco = carregarBanco(persistencia->nomeArquivoBanco);
+    //    banco = carregarBanco(persistencia->nomeArquivoBanco);
     if (banco == NULL) {
         banco = criarBanco();
     }
@@ -95,7 +97,7 @@ int main(int argc, char** argv) {
                 interpretarCreateTable("Arquivos/create.sql");
                 //                interpretarCreateTable(nomeArquivo);
                 persistirBanco(banco, persistencia->nomeArquivoBanco);
-                gerarBloco();
+                gerarBloco("bloco01.dat");
                 break;
             case 2:
                 printf("Informe o nome do arquivo: ");
@@ -177,7 +179,7 @@ int persistirBanco(Banco * banco, char* nomeArquivoBanco) {
     return 1;
 }
 
-Banco * carregarBanco(char* nomeArquivoBanco) {
+Banco* carregarBanco(char* nomeArquivoBanco) {
     FILE* file;
     file = fopen(nomeArquivoBanco, "rb");
     if (file == NULL) {
@@ -252,8 +254,8 @@ void interpretarCreateTable(char* nomeArquivo) {
     fclose(file);
 }
 
-void gerarBloco() {
-    FILE* file = fopen("bloco01.data", "w");
+void gerarBloco(char* nomeArquivo) {
+    FILE* file = fopen(nomeArquivo, "w");
     int i, n = 0;
 
     for (i = 0; i < 500; i++) {
@@ -261,6 +263,9 @@ void gerarBloco() {
     }
 
     fclose(file);
+}
+
+void inicializarArquivo(char* nomeArquivo) {
 }
 
 void imprimir() {
