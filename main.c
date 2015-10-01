@@ -65,12 +65,12 @@ Banco* carregarBanco(char* nomeArquivoBanco);
 void interpretarCreateTable(char* nomeArquivo);
 void gerarBloco(char* nomeArquivo);
 void inicializarArquivo(char* nomeArquivo);
-void imprimir();
+void imprimirBanco(Banco* banco);
 
 Banco* banco;
 Persistencia* persistencia;
 
-int main(int argc, char** argv) {
+int main() {
     char* nomeArquivo;
 
     persistencia = criarPersistencia("Banco.MRdb");
@@ -79,8 +79,10 @@ int main(int argc, char** argv) {
         banco = criarBanco();
     }
 
-    int option = 1;
-    while (option) {
+    int option;
+    //    int option = 1;
+    //    while (option) {
+    do {
         printf("-------------------\n");
         printf("1: Criar tabelas\n"
                 "2: Inserir dados\n"
@@ -98,6 +100,7 @@ int main(int argc, char** argv) {
                 //                interpretarCreateTable(nomeArquivo);
                 persistirBanco(banco, persistencia->nomeArquivoBanco);
                 gerarBloco("bloco01.dat");
+                inicializarArquivo("bloco01.dat");
                 break;
             case 2:
                 printf("Informe o nome do arquivo: ");
@@ -109,7 +112,9 @@ int main(int argc, char** argv) {
                 printf("Informe o nome do arquivo: ");
                 break;
         }
-    }
+        imprimirBanco(banco);
+        //    }
+    } while (option);
 
     return (EXIT_SUCCESS);
 }
@@ -268,5 +273,17 @@ void gerarBloco(char* nomeArquivo) {
 void inicializarArquivo(char* nomeArquivo) {
 }
 
-void imprimir() {
+void imprimirBanco(Banco* banco) {
+    Tabela* tabela;
+    Campo* campo;
+    printf("Número Tabelas: %d\n", banco->numeroTabelas);
+    printf("Limite Tabelas: %d\n", banco->limiteTabelas);
+    int i;
+    for (i = 0; i < banco->limiteTabelas; i++) {
+//        tabela = banco->limiteTabelas[i];
+        printf("---------\n");
+//        printf("%s\n", banco->limiteTabelas);
+        tabela->nome;
+        printf("---------\n");
+    }
 }
