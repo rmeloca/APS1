@@ -384,11 +384,12 @@ void interpretarInsertInto(char* nomeArquivo) {
 
 //retornar tuplas gravadas
 //param bloco
+
 void inserirRegistro(Dados* dados) {
 }
 
 int calcTamanhoInserir() {
 }
 
-int procurarEspaco() {
+int procurarEspaco(char* nomeArq, int tamanho) {
 }

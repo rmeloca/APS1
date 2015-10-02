@@ -9,6 +9,7 @@
         <in>token.h</in>
       </df>
       <in>casamentoDelimitadores.c</in>
+      <in>dados.c</in>
       <in>main.c</in>
       <in>stack.c</in>
       <in>token.c</in>
