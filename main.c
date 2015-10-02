@@ -1,4 +1,4 @@
-/* 
+/*  
  * File:   main.c
  * Author: romulo
  *
@@ -18,6 +18,7 @@ typedef struct tabela Tabela;
 typedef struct banco Banco;
 typedef struct persistencia Persistencia;
 typedef enum tipo Tipo;
+typedef struct dados Dados;
 
 #define MAXIMO_TABELAS 10;
 #define MAXIMO_CAMPOS 10;
@@ -25,6 +26,14 @@ typedef enum tipo Tipo;
 
 enum tipo {
     INTEGER, BOOLEAN, CHAR, VARCHAR
+};
+
+struct dados {
+    Tabela tabela;
+    char* boolean;
+    char* chars;
+    char* varchar;
+    char* ordemIns;
 };
 
 struct campo {
@@ -38,6 +47,9 @@ struct tabela {
     Campo** campos;
     int numeroCampos;
     int limiteCampos;
+    char** nomesArquivosBlocos;
+    int numeroBlocos;
+    int limiteBlocos;
 };
 
 struct banco {
@@ -47,10 +59,7 @@ struct banco {
 };
 
 struct persistencia {
-    char** nomesArquivosBlocos;
     char* nomeArquivoBanco;
-    int numeroBlocos;
-    int limiteBlocos;
 };
 
 //encapsular corretamente em arquivos
@@ -66,6 +75,12 @@ void interpretarCreateTable(char* nomeArquivo);
 void gerarBloco(char* nomeArquivo);
 void inicializarBloco(char* nomeArquivo);
 void imprimirBanco(Banco* banco);
+void lerInser();
+void inserir(Dados dados);
+int calcTamanhoInserir();
+int procurarEspaco();
+Tabela* getTabela(char* nome);
+Campo* getCampo(char* nome);
 
 Banco* banco;
 Persistencia* persistencia;
@@ -98,15 +113,6 @@ int main() {
                 interpretarCreateTable("Arquivos/create.sql");
                 //                interpretarCreateTable(nomeArquivo);
                 persistirBanco(banco, persistencia->nomeArquivoBanco);
-
-                //adicionar bloco
-                nomeArquivo = "Arquivos/bloco01.dat";
-                persistencia->nomesArquivosBlocos = (char**) calloc(persistencia->limiteBlocos, sizeof (char*));
-                persistencia->nomesArquivosBlocos = (char*) calloc(strlen(nomeArquivo), sizeof (char));
-                strcpy(persistencia->nomesArquivosBlocos[0], nomeArquivo);
-
-                gerarBloco(persistencia->nomesArquivosBlocos[0]);
-                inicializarBloco(persistencia->nomesArquivosBlocos[0]);
                 printf("Tabelas criadas com sucesso\n");
                 break;
             case 2:
@@ -130,10 +136,8 @@ int main() {
 
 Persistencia* criarPersistencia(char* nomeArquivoBanco) {
     Persistencia* persistencia = (Persistencia*) malloc(sizeof (Persistencia));
-    persistencia->limiteBlocos = MAXIMO_BLOCOS;
     persistencia->nomeArquivoBanco = (char*) calloc(strlen(nomeArquivoBanco), sizeof (char));
     strcpy(persistencia->nomeArquivoBanco, nomeArquivoBanco);
-    persistencia->numeroBlocos = 0;
     return persistencia;
 }
 
@@ -148,10 +152,13 @@ Banco * criarBanco() {
 Tabela * criarTabela(char* nome) {
     Tabela* tabela = (Tabela*) malloc(sizeof (Tabela));
     tabela->limiteCampos = MAXIMO_CAMPOS;
+    tabela->limiteBlocos = MAXIMO_BLOCOS;
+    tabela->numeroBlocos = 0;
     tabela->campos = (Campo**) calloc(tabela->limiteCampos, sizeof (Campo*));
-    tabela->nome = (char*) calloc(strlen(nome), sizeof (char));
-    strcpy(tabela->nome, nome);
     tabela->numeroCampos = 0;
+    tabela->nome = (char*) calloc(strlen(nome), sizeof (char));
+    tabela->nomesArquivosBlocos = (char**) calloc(tabela->limiteBlocos, sizeof (char*));
+    strcpy(tabela->nome, nome);
     return tabela;
 }
 
@@ -264,6 +271,11 @@ void interpretarCreateTable(char* nomeArquivo) {
                     campo = criarCampo(nomeCampo, tipoCampo, bytesCampo);
                     adicionarCampo(tabela, campo);
                 }
+
+                tabela->nomesArquivosBlocos[tabela->numeroBlocos] = (char*) calloc(strlen(tabela->campos[0]->nome), sizeof (char));
+                strcpy(tabela->nomesArquivosBlocos[tabela->numeroBlocos], "tabela->campos[0]->nome");
+                gerarBloco(tabela->nomesArquivosBlocos[tabela->numeroBlocos]);
+                tabela->numeroBlocos++;
             }
         }
     }
@@ -276,16 +288,25 @@ void gerarBloco(char* nomeArquivo) {
     for (i = 0; i < 500; i++) {
         fwrite(&n, sizeof (int), 1, file);
     }
+
+    short int deslocamento = 2000;
+    fseek(file, 4, 0);
+    fwrite(&deslocamento, sizeof (short int), 1, file);
+
     fclose(file);
 }
-// Gambiarra monstra, mas assim ele grava 2000
 
-void inicializarBloco(char* nomeArquivo) {
-    FILE* file = fopen(nomeArquivo, "r+");
-    short int deslocamento = 1996;
-    fseek(file, 4, SEEK_SET);
-    fwrite(&deslocamento, sizeof (short int), 1, file);
-    fclose(file);
+void lerInser() {
+    inserir(Dados dados);
+}
+
+void inserir(Dados dados) {
+}
+
+int calcTamanhoInserir() {
+}
+
+int procurarEspaco() {
 }
 
 void imprimirBanco(Banco* banco) {
@@ -307,4 +328,10 @@ void imprimirBanco(Banco* banco) {
             printf("Bytes: %d\n", campo->bytes);
         }
     }
+}
+
+Tabela* getTabela(char* nome) {
+}
+
+Campo* getCampo(char* nome) {
 }
