@@ -64,7 +64,7 @@ int persistirBanco(Banco* banco, char* nomeArquivoBanco);
 Banco* carregarBanco(char* nomeArquivoBanco);
 void interpretarCreateTable(char* nomeArquivo);
 void gerarBloco(char* nomeArquivo);
-void inicializarArquivo(char* nomeArquivo);
+void inicializarBloco(char* nomeArquivo);
 void imprimirBanco(Banco* banco);
 
 Banco* banco;
@@ -73,7 +73,7 @@ Persistencia* persistencia;
 int main() {
     char* nomeArquivo;
 
-    persistencia = criarPersistencia("Banco.MRdb");
+    persistencia = criarPersistencia("Arquivos/Banco.MRdb");
     //    banco = carregarBanco(persistencia->nomeArquivoBanco);
     if (banco == NULL) {
         banco = criarBanco();
@@ -98,8 +98,15 @@ int main() {
                 interpretarCreateTable("Arquivos/create.sql");
                 //                interpretarCreateTable(nomeArquivo);
                 persistirBanco(banco, persistencia->nomeArquivoBanco);
-                gerarBloco("bloco01.dat");
-                inicializarArquivo("bloco01.dat");
+
+                //adicionar bloco
+                nomeArquivo = "Arquivos/bloco01.dat";
+                persistencia->nomesArquivosBlocos = (char**) calloc(persistencia->limiteBlocos, sizeof (char*));
+                persistencia->nomesArquivosBlocos = (char*) calloc(strlen(nomeArquivo), sizeof (char));
+                strcpy(persistencia->nomesArquivosBlocos[0], nomeArquivo);
+
+                gerarBloco(persistencia->nomesArquivosBlocos[0]);
+                inicializarBloco(persistencia->nomesArquivosBlocos[0]);
                 printf("Tabelas criadas com sucesso\n");
                 break;
             case 2:
@@ -266,23 +273,18 @@ void interpretarCreateTable(char* nomeArquivo) {
 void gerarBloco(char* nomeArquivo) {
     FILE* file = fopen(nomeArquivo, "w");
     int i, n = 0;
-
     for (i = 0; i < 500; i++) {
         fwrite(&n, sizeof (int), 1, file);
     }
-
     fclose(file);
 }
 // Gambiarra monstra, mas assim ele grava 2000
-void inicializarArquivo(char* nomeArquivo) {
+
+void inicializarBloco(char* nomeArquivo) {
     FILE* file = fopen(nomeArquivo, "r+");
-    short int n = 7;
-    short int n1 = 208;
-    fseek(file, 4, 0);
-    putc(n, file);
-    fseek(file, 5, 0);
-    putc(n1, file);
-    //fwrite(&n, sizeof(short int), 1, file);
+    short int deslocamento = 1996;
+    fseek(file, 4, SEEK_SET);
+    fwrite(&deslocamento, sizeof (short int), 1, file);
     fclose(file);
 }
 
