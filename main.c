@@ -16,7 +16,6 @@
 typedef struct campo Campo;
 typedef struct tabela Tabela;
 typedef struct banco Banco;
-typedef struct persistencia Persistencia;
 typedef enum tipo Tipo;
 typedef struct dados Dados;
 
@@ -29,7 +28,7 @@ enum tipo {
 };
 
 struct dados {
-    Tabela tabela;
+    Tabela* tabela;
     char* boolean;
     char* chars;
     char* varchar;
@@ -56,67 +55,70 @@ struct banco {
     Tabela** tabelas;
     int numeroTabelas;
     int limiteTabelas;
-};
-
-struct persistencia {
     char* nomeArquivoBanco;
 };
 
 //encapsular corretamente em arquivos
-Persistencia* criarPersistencia(char* nomeArquivoBanco);
-Banco* criarBanco();
+Banco* criarBanco(char* nomeArquivoBanco);
 Tabela* criarTabela(char* nome);
 Campo* criarCampo(char* nome, Tipo tipo, int bytes);
+
 void adicionarTabela(Banco* banco, Tabela* tabela);
 void adicionarCampo(Tabela* tabela, Campo* campo);
-int persistirBanco(Banco* banco, char* nomeArquivoBanco);
-Banco* carregarBanco(char* nomeArquivoBanco);
-void interpretarCreateTable(char* nomeArquivo);
-void gerarBloco(char* nomeArquivo);
-void inicializarBloco(char* nomeArquivo);
+void adicionarBloco(Tabela* tabela, char* nomeArquivo);
+
+Tabela* getTabela(Banco* banco, char* nome);
+Campo* getCampo(Tabela* tabela, char* nome);
+
 void imprimirBanco(Banco* banco);
-void lerInser();
-void inserir(Dados dados);
+
+void interpretarCreateTable(char* nomeArquivo);
+void interpretarInsertInto(char* nomeArquivos);
+
+Banco* carregarBanco(char* nomeArquivoBanco);
+int persistirBanco(Banco* banco, char* nomeArquivoBanco);
+
+void gerarBloco(char* nomeArquivo);
+void inserirRegistro(Dados* dados);
 int calcTamanhoInserir();
 int procurarEspaco();
-Tabela* getTabela(char* nome);
-Campo* getCampo(char* nome);
 
 Banco* banco;
-Persistencia* persistencia;
 
 int main() {
     char* nomeArquivo;
 
-    persistencia = criarPersistencia("Arquivos/Banco.MRdb");
-    //    banco = carregarBanco(persistencia->nomeArquivoBanco);
+    //    banco = carregarBanco("Arquivos/Banco.MRdb");
     if (banco == NULL) {
-        banco = criarBanco();
+        banco = criarBanco("Arquivos/Banco.MRdb");
     }
 
     int option;
     do {
-        //        printf("-------------------\n");
         printf("1: Criar tabelas\t"
                 "2: Inserir registros\t"
                 "3: Listar registros\t"
                 "4: Excluir registros\t"
+                "5: Imprimir banco\t"
                 "0: Sair\t");
-        //        printf("-------------------\n");
         printf("\n");
         printf("Escolha uma opção: ");
         scanf("%d", &option);
         switch (option) {
             case 1:
                 printf("Informe o nome do arquivo: ");
-                scanf("%s", nomeArquivo);
-                interpretarCreateTable("Arquivos/create.sql");
+                //                scanf("%s", nomeArquivo);
                 //                interpretarCreateTable(nomeArquivo);
-                persistirBanco(banco, persistencia->nomeArquivoBanco);
+                interpretarCreateTable("Arquivos/create.sql");
+                persistirBanco(banco, banco->nomeArquivoBanco);
                 printf("Tabelas criadas com sucesso\n");
                 break;
             case 2:
                 printf("Informe o nome do arquivo: ");
+                //                scanf("%s", nomeArquivo);
+                //                interpretarInsertInto(nomeArquivo)
+                interpretarInsertInto("Arquivos/insert.sql");
+                printf("Insert Processado %d tuplas inseridas\n", 0);
                 break;
             case 3:
                 printf("Informe o nome do arquivo: ");
@@ -134,31 +136,35 @@ int main() {
     return (EXIT_SUCCESS);
 }
 
-Persistencia* criarPersistencia(char* nomeArquivoBanco) {
-    Persistencia* persistencia = (Persistencia*) malloc(sizeof (Persistencia));
-    persistencia->nomeArquivoBanco = (char*) calloc(strlen(nomeArquivoBanco), sizeof (char));
-    strcpy(persistencia->nomeArquivoBanco, nomeArquivoBanco);
-    return persistencia;
-}
-
-Banco * criarBanco() {
+Banco* criarBanco(char* nomeArquivoBanco) {
     Banco* banco = (Banco*) malloc(sizeof (Banco));
+
     banco->limiteTabelas = MAXIMO_TABELAS;
+
     banco->tabelas = (Tabela**) calloc(banco->limiteTabelas, sizeof (Tabela*));
+    banco->nomeArquivoBanco = (char*) calloc(strlen(nomeArquivoBanco), sizeof (char));
+
+    strcpy(banco->nomeArquivoBanco, nomeArquivoBanco);
+
     banco->numeroTabelas = 0;
     return banco;
 }
 
 Tabela * criarTabela(char* nome) {
     Tabela* tabela = (Tabela*) malloc(sizeof (Tabela));
+
     tabela->limiteCampos = MAXIMO_CAMPOS;
     tabela->limiteBlocos = MAXIMO_BLOCOS;
-    tabela->numeroBlocos = 0;
+
     tabela->campos = (Campo**) calloc(tabela->limiteCampos, sizeof (Campo*));
-    tabela->numeroCampos = 0;
-    tabela->nome = (char*) calloc(strlen(nome), sizeof (char));
     tabela->nomesArquivosBlocos = (char**) calloc(tabela->limiteBlocos, sizeof (char*));
+    tabela->nome = (char*) calloc(strlen(nome), sizeof (char));
+
     strcpy(tabela->nome, nome);
+
+    tabela->numeroBlocos = 0;
+    tabela->numeroCampos = 0;
+
     return tabela;
 }
 
@@ -171,7 +177,7 @@ Campo * criarCampo(char* nome, Tipo tipo, int bytes) {
     return campo;
 }
 
-void adicionarTabela(Banco* banco, Tabela * tabela) {
+void adicionarTabela(Banco* banco, Tabela* tabela) {
     if (banco->numeroTabelas == banco->limiteTabelas) {
         //dobra tamanho do vetor e realoca
         return;
@@ -180,13 +186,23 @@ void adicionarTabela(Banco* banco, Tabela * tabela) {
     banco->numeroTabelas++;
 }
 
-void adicionarCampo(Tabela * tabela, Campo * campo) {
+void adicionarCampo(Tabela* tabela, Campo* campo) {
     if (tabela->numeroCampos == tabela->limiteCampos) {
         //dobra tamanho do vetor e realoca
         return;
     }
     tabela->campos[tabela->numeroCampos] = campo;
     tabela->numeroCampos++;
+}
+
+void adicionarBloco(Tabela* tabela, char* nomeArquivo) {
+    if (tabela->numeroBlocos == tabela->limiteBlocos) {
+        //dobra tamanho do vetor e realoca
+        return;
+    }
+    tabela->nomesArquivosBlocos[tabela->numeroBlocos] = (char*) calloc(strlen(nomeArquivo), sizeof (char));
+    strcpy(tabela->nomesArquivosBlocos[tabela->numeroBlocos], nomeArquivo);
+    tabela->numeroBlocos++;
 }
 
 int persistirBanco(Banco * banco, char* nomeArquivoBanco) {
@@ -210,6 +226,51 @@ Banco* carregarBanco(char* nomeArquivoBanco) {
     fread(banco, sizeof (Banco), 1, file);
     fclose(file);
     return banco;
+}
+
+void imprimirBanco(Banco* banco) {
+    Tabela* tabela;
+    Campo* campo;
+    printf("Número Tabelas: %d\n", banco->numeroTabelas);
+    printf("Limite Tabelas: %d\n", banco->limiteTabelas);
+    int i, j;
+    for (i = 0; i < banco->numeroTabelas; i++) {
+        tabela = banco->tabelas[i];
+        printf("----%s----\n", tabela->nome);
+        printf("Número Campos: %d\n", tabela->numeroCampos);
+        printf("Limite Campos: %d\n", tabela->limiteCampos);
+        for (j = 0; j < tabela->numeroCampos; j++) {
+            campo = tabela->campos[j];
+            printf("\n");
+            printf("Campo: %s\n", campo->nome);
+            printf("Tipo: %d\n", campo->tipo);
+            printf("Bytes: %d\n", campo->bytes);
+        }
+    }
+}
+
+Tabela* getTabela(Banco* banco, char* nome) {
+    Tabela* tabela;
+    int i;
+    for (i = 0; i < banco->numeroTabelas; i++) {
+        tabela = banco->tabelas[i];
+        if (!strcmp(tabela->nome, nome)) {
+            return tabela;
+        }
+    }
+    return NULL;
+}
+
+Campo* getCampo(Tabela* tabela, char* nome) {
+    Campo* campo;
+    int i;
+    for (i = 0; i < tabela->numeroCampos; i++) {
+        campo = tabela->campos[i];
+        if (!strcmp(campo->nome, nome)) {
+            return campo;
+        }
+    }
+    return NULL;
 }
 
 //corrigir tabulações
@@ -271,11 +332,14 @@ void interpretarCreateTable(char* nomeArquivo) {
                     campo = criarCampo(nomeCampo, tipoCampo, bytesCampo);
                     adicionarCampo(tabela, campo);
                 }
-
-                tabela->nomesArquivosBlocos[tabela->numeroBlocos] = (char*) calloc(strlen(tabela->campos[0]->nome), sizeof (char));
-                strcpy(tabela->nomesArquivosBlocos[tabela->numeroBlocos], "tabela->campos[0]->nome");
-                gerarBloco(tabela->nomesArquivosBlocos[tabela->numeroBlocos]);
-                tabela->numeroBlocos++;
+                token = (char*) calloc(100, sizeof (char));
+                strcpy(token, "Arquivos/");
+                strcat(token, tabela->nome);
+                sprintf(nomeCampo, "_%d", tabela->numeroBlocos);
+                strcat(token, nomeCampo);
+                strcat(token, ".dat");
+                gerarBloco(token);
+                adicionarBloco(tabela, token);
             }
         }
     }
@@ -290,48 +354,41 @@ void gerarBloco(char* nomeArquivo) {
     }
 
     short int deslocamento = 2000;
-    fseek(file, 4, 0);
+    fseek(file, 4, SEEK_SET);
     fwrite(&deslocamento, sizeof (short int), 1, file);
 
     fclose(file);
 }
 
-void lerInser() {
-    inserir(Dados dados);
+//propagar retorno
+
+void interpretarInsertInto(char* nomeArquivo) {
+    FILE* file;
+    TokenReader* tokenReader;
+    Tabela* tabela;
+    Campo* campo;
+    Dados* dados;
+    char* linha;
+
+    file = fopen(nomeArquivo, "r");
+    linha = (char*) calloc(1000, sizeof (char));
+    tokenReader = newTokenReader(linha);
+
+    tabela = getTabela(banco, "Departamento");
+    printf("Campos: %d\n", tabela->numeroCampos);
+    campo = getCampo(tabela, "Dnome");
+    printf("Tipo: %d\n", campo->tipo);
+
+    inserirRegistro(dados);
 }
 
-void inserir(Dados dados) {
+//retornar tuplas gravadas
+//param bloco
+void inserirRegistro(Dados* dados) {
 }
 
 int calcTamanhoInserir() {
 }
 
 int procurarEspaco() {
-}
-
-void imprimirBanco(Banco* banco) {
-    Tabela* tabela;
-    Campo* campo;
-    printf("Número Tabelas: %d\n", banco->numeroTabelas);
-    printf("Limite Tabelas: %d\n", banco->limiteTabelas);
-    int i, j;
-    for (i = 0; i < banco->numeroTabelas; i++) {
-        tabela = banco->tabelas[i];
-        printf("----%s----\n", tabela->nome);
-        printf("Número Campos: %d\n", tabela->numeroCampos);
-        printf("Limite Campos: %d\n", tabela->limiteCampos);
-        for (j = 0; j < tabela->numeroCampos; j++) {
-            campo = tabela->campos[j];
-            printf("\n");
-            printf("Campo: %s\n", campo->nome);
-            printf("Tipo: %d\n", campo->tipo);
-            printf("Bytes: %d\n", campo->bytes);
-        }
-    }
-}
-
-Tabela* getTabela(char* nome) {
-}
-
-Campo* getCampo(char* nome) {
 }
