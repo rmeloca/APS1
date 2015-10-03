@@ -17,6 +17,6 @@ struct valores {
     char** varchar;
 };
 
-void inserirRegistro(Valores* dados);
-int calcTamanhoInserir();
-int procurarEspaco(char* nomeArq, int tamanho);
+void inserirRegistro(Valores* valores);
+int calcTamanhoInserir(Valores* valores);
+char* procurarEspaco(Tabela tabela, int tamanho);
