@@ -2,11 +2,22 @@
 <configurationDescriptor version="95">
   <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
     <df root="." name="0">
+      <df name="Headers">
+        <in>banco.h</in>
+        <in>campo.h</in>
+        <in>gerencia.h</in>
+        <in>tabela.h</in>
+        <in>valores.h</in>
+      </df>
+      <in>banco.c</in>
+      <in>campo.c</in>
       <in>casamentoDelimitadores.c</in>
-      <in>dados.c</in>
+      <in>gerencia.c</in>
       <in>main.c</in>
       <in>stack.c</in>
+      <in>tabela.c</in>
       <in>token.c</in>
+      <in>valores.c</in>
     </df>
     <logicalFolder name="ExternalFiles"
                    displayName="Arquivos Importantes"
@@ -37,15 +48,33 @@
           <executablePath>main</executablePath>
         </makeTool>
       </makefileType>
+      <item path="Headers/banco.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Headers/campo.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Headers/gerencia.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Headers/tabela.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Headers/valores.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="banco.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="campo.c" ex="false" tool="0" flavor2="0">
+      </item>
       <item path="casamentoDelimitadores.c" ex="false" tool="0" flavor2="2">
       </item>
-      <item path="dados.c" ex="false" tool="0" flavor2="0">
+      <item path="gerencia.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="main.c" ex="false" tool="0" flavor2="2">
       </item>
       <item path="stack.c" ex="false" tool="0" flavor2="2">
       </item>
+      <item path="tabela.c" ex="false" tool="0" flavor2="0">
+      </item>
       <item path="token.c" ex="false" tool="0" flavor2="2">
+      </item>
+      <item path="valores.c" ex="false" tool="0" flavor2="0">
       </item>
     </conf>
   </confs>

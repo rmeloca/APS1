@@ -1,12 +1,9 @@
 ############################# Makefile ##########################
 all: MRdb
-MRdb: main.o token.o
-	gcc -c main.c token.c
-	gcc -o main main.o token.o
+MRdb: main.o token.o gerencia.o banco.o tabela.o campo.o valores.o
 
 casamento: token.o casamentoDelimitadores.o stack.o
-	gcc -c token.c casamentoDelimitadores.c stack.c
-	gcc -o casamento token.o casamentoDelimitadores.o stack.o
+
 run:
 	./main
 clean:
