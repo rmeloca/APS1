@@ -1,7 +1,6 @@
 ############################# Makefile ##########################
 all: MRdb
 MRdb: main.o token.o gerencia.o banco.o tabela.o campo.o valores.o
-
 casamento: token.o casamentoDelimitadores.o stack.o
 
 run:
