@@ -38,7 +38,8 @@ char** procurarEspaco(Tabela *tabela, int tamanho) {
         int inicio = qtdReg * 2;
         inicio += 6;
         if ((espacoLivre - inicio) >= tamanho) {
-            itoa(espacoLivre, retorno[0]);
+            sprintf(retorno[0], "%d", espacoLivre);
+            //            itoa(espacoLivre, retorno[0]);
             retorno[1] = nomeArq;
             return retorno;
         }
@@ -47,10 +48,12 @@ char** procurarEspaco(Tabela *tabela, int tamanho) {
     nomeArq = tabela->nome;
 
     char* temp = malloc(sizeof (char*));
-    itoa(i, temp, 10);
+    sprintf(temp, "%d", i);
+    //    itoa(i, temp, 10);
     strcat(nomeArq, temp);
     gerarBloco(nomeArq);
-    itoa(espacoLivre, retorno[0]);
+    sprintf(retorno[0], "%d", espacoLivre);
+    //    itoa(espacoLivre, retorno[0]);
     retorno[1] = nomeArq;
     return retorno;
 }
