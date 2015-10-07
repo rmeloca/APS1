@@ -8,6 +8,8 @@
 #include "campo.h"
 
 typedef struct tabela Tabela;
+typedef struct tupla Tupla;
+typedef struct associacao Associacao;
 
 struct tabela {
     char* nome;
@@ -17,8 +19,19 @@ struct tabela {
     char** nomesArquivosBlocos;
     int numeroBlocos;
     int limiteBlocos;
+    Tupla **tuplas;
+    
 };
 
+struct tupla{
+    Associacao **associacao;
+};
+
+struct associacao {
+    Campo *campo;
+    void* valor;
+
+};
 #define MAXIMO_CAMPOS 10;
 #define MAXIMO_BLOCOS 10;
 
