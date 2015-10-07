@@ -111,19 +111,66 @@ void interpretarInsertInto(Banco* banco, char* nomeArquivo) {
     TokenReader* tokenReader;
     Tabela* tabela;
     Campo* campo;
-    Valores* dados;
+    Valores* valores;
     char* linha;
+    char* token;
+    char* concatenacao;
 
     file = fopen(nomeArquivo, "r");
     linha = (char*) calloc(1000, sizeof (char));
-    tokenReader = newTokenReader(linha);
 
-    tabela = getTabela(banco, "Departamento");
-    printf("Campos: %d\n", tabela->numeroCampos);
-    campo = getCampo(tabela, "Dnome");
-    printf("Tipo: %d\n", campo->tipo);
+    //Para todo arquivo
+    while (fgets(linha, 1000, file) != NULL) {
+        tokenReader = newTokenReader(linha);
+        token = nextToken(tokenReader);
+        //Para cada INSERT
+        while (hasMoreTokens(tokenReader)) {
+            if (!strcasecmp(token, "TABLE")) {
+                token = nextToken(tokenReader);
+                tabela = getTabela(banco, token);
+                if (!tabela) {
+                    return;
+                }
+                token = nextToken(tokenReader);
 
-    inserirRegistro(dados);
+                //Para cada atributo
+                while (1) {
+                    token = nextToken(tokenReader);
+                    if (!strcmp(token, ")")) {
+                        break;
+                    }
+                    printf("campo: %s\n", token);
+                    campo = getCampo(tabela, token);
+                    //lista de campos
+                }
+
+                fgets(linha, 1000, file);
+                setTokenString(tokenReader, linha);
+                token = nextToken(tokenReader);
+                token = nextToken(tokenReader);
+
+                //Para cada valor
+                while (hasMoreTokens(tokenReader)) {
+                    token = nextToken(tokenReader);
+                    if (!strcmp(token, ")")) {
+                        break;
+                    }
+                    //concatenar tokens, retirar apóstrofes
+                    if (!strcmp(token, "'")) {
+                        strcat(concatenacao, token);
+                        token = nextToken(tokenReader);
+                        while (strcmp(token, "'")) {
+                            strcat(concatenacao, " ");
+                            strcat(concatenacao, token);
+                        }
+                    }
+                }
+
+            }
+
+        }
+    }
+    inserirRegistro(valores);
 }
 
 void gerarBloco(char* nomeArquivo) {
