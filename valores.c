@@ -117,7 +117,6 @@ int inserirRegistro(Valores *valores) {
     int qtdReg = 0, lugarPont = 6;
     char** destino;
     char* nomeArq;
-
     tamanho = calcTamanhoInserir(valores);
 
     if (tamanho > 1992) {
