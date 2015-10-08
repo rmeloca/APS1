@@ -8,20 +8,20 @@
         <in>banco.h</in>
         <in>campo.h</in>
         <in>gerencia.h</in>
+        <in>inserir.h</in>
         <in>stack.h</in>
         <in>tabela.h</in>
         <in>token.h</in>
-        <in>valores.h</in>
       </df>
       <in>banco.c</in>
       <in>campo.c</in>
       <in>casamentoDelimitadores.c</in>
       <in>gerencia.c</in>
+      <in>inserir.c</in>
       <in>main.c</in>
       <in>stack.c</in>
       <in>tabela.c</in>
       <in>token.c</in>
-      <in>valores.c</in>
     </df>
   </logicalFolder>
   <projectmakefile>Makefile</projectmakefile>
@@ -49,8 +49,6 @@
         <gdb_interceptlist>
           <gdbinterceptoptions gdb_all="false" gdb_unhandled="true" gdb_unexpected="true"/>
         </gdb_interceptlist>
-        <gdb_signals>
-        </gdb_signals>
         <gdb_options>
           <DebugOptions>
           </DebugOptions>

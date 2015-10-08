@@ -20,11 +20,10 @@ struct tabela {
     int numeroBlocos;
     int limiteBlocos;
     Tupla **tuplas;
-
 };
 
 struct tupla{
-    Associacao **associacao;
+    Associacao **associacoes;
 };
 
 struct associacao {
