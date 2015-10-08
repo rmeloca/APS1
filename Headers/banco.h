@@ -22,7 +22,3 @@ Banco* criarBanco(char* nomeArquivoBanco);
 void adicionarTabela(Banco* banco, Tabela* tabela);
 Tabela* getTabela(Banco* banco, char* nome);
 void imprimirBanco(Banco* banco);
-
-
-
-Campo* criarCampo(char* nome, Tipo tipo, int bytes);

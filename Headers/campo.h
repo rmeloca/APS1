@@ -19,3 +19,4 @@ struct campo {
 };
 
 Campo* criarCampo(char* nome, Tipo tipo, int bytes);
+int isCamposEquals(Campo* campo1, Campo* campo2);

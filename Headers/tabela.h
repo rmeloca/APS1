@@ -40,6 +40,10 @@ struct associacao {
 
 Tabela* criarTabela(char* nome);
 void adicionarCampo(Tabela* tabela, Campo* campo);
-Campo* getCampo(Tabela* tabela, char* nome);
 void adicionarBloco(Tabela* tabela, char* nomeArquivo);
+Campo* getCampo(Tabela* tabela, char* nome);
+Tupla* criarTupla(Tabela* tabela);
+void adicionarTupla(Tabela* tabela, Tupla* tupla);
 Associacao* criarAssociacao(Campo* campo);
+Associacao* findAssociacao(Tupla* tupla, Campo* campo);
+void associarValor(Associacao* associacao, void* valor);

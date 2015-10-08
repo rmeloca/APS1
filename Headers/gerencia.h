@@ -8,9 +8,9 @@
 #include "token.h"
 #include "inserir.h"
 
+int persistirBanco(Banco * banco, char* nomeArquivoBanco);
+Banco* carregarBanco(char* nomeArquivoBanco);
+void normalizarArquivo(char* nomeArquivo);
 void interpretarCreateTable(Banco* banco, char* nomeArquivo);
 void interpretarInsertInto(Banco* banco, char* nomeArquivos);
 void gerarBloco(char* nomeArquivo);
-Banco* carregarBanco(char* nomeArquivoBanco);
-int persistirBanco(Banco * banco, char* nomeArquivoBanco);
-void normalizarArquivo(char* nomeArquivo);

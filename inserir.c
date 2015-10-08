@@ -8,9 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 #include "Headers/inserir.h"
-#include "Headers/gerencia.h"
 
 //propagar retorno
 //retornar tuplas gravadas
@@ -79,13 +77,13 @@ int inserirRegistro(Banco* banco) {
             //Escreve ponteiro para o comeco do novo registro
             comecoRegistro = (espacoLivre - tamanho);
             fseek(file, (6 + (qtdRegistros * 2)), SEEK_SET);
-            fwrite(comecoRegistro, sizeof (short int), 1, file);
+            fwrite(&comecoRegistro, sizeof (short int), 1, file);
 
             //Insere o registro
 
             for (k = 0; tabela->numeroCampos > k; k++) {
-                Associacao associacao = tupla->associacoes[k];
-                Campo campo = associacao->campo;
+                Associacao* associacao = tupla->associacoes[k];
+                Campo* campo = associacao->campo;
                 if (campo->tipo == VARCHAR) {
                     tamanhoVar = 0;
                     qtdVar++;

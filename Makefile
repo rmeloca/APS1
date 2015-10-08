@@ -1,8 +1,8 @@
 ############################# Makefile ##########################
 all: MRdb
 MRdb: main.o token.o gerencia.o banco.o tabela.o campo.o inserir.o
-	gcc -c main.c token.c gerencia.c banco.c tabela.c campo.c inserir.c -lm
-	gcc -o main main.o token.o gerencia.o banco.o tabela.o campo.o inserir.o -lm
+	gcc -c main.c token.c gerencia.c banco.c tabela.c campo.c inserir.c
+	gcc -o main main.o token.o gerencia.o banco.o tabela.o campo.o inserir.o
 casamento: token.o casamentoDelimitadores.o stack.o
 
 run:

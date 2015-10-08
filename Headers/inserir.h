@@ -7,6 +7,6 @@
 
 #include "banco.h"
 
-int inserirRegistro(Banco *banco);
 int calcTamanhoInserir(Tupla *tupla, int qtdAss);
-char** procurarEspaco(Tabela *tabela, int tamanho);
+int inserirRegistro(Banco* banco);
+int obterBloco(Tupla *tupla, int tamanho, char** nomesArquivosBlocos, int numeroBlocos, char* nomeTabela);

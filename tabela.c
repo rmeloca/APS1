@@ -26,7 +26,7 @@ Tabela* criarTabela(char* nome) {
 
     tabela->limiteTuplas = MAXIMO_TUPLAS;
     //nota-se que ao persistir o arquivo auxiliar, inclui-se as tuplas inicializadas
-    tabela->tuplas = (Tupla*) calloc(tabela->limiteTuplas, sizeof (Tupla));
+    tabela->tuplas = (Tupla**) calloc(tabela->limiteTuplas, sizeof (Tupla*));
     tabela->numeroTuplas = 0;
     return tabela;
 }
@@ -71,7 +71,7 @@ Tupla* criarTupla(Tabela* tabela) {
     //cria tupla ordenado segundo os campos da tabela
     for (i = 0; i < tupla->numeroCampos; i++) {
         campo = tabela->campos[i];
-        tupla->associacoes = criarAssociacao(campo);
+        tupla->associacoes[i] = criarAssociacao(campo);
     }
 
     return tupla;
