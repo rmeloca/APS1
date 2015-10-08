@@ -14,25 +14,28 @@ typedef struct associacao Associacao;
 struct tabela {
     char* nome;
     Campo** campos;
-    int numeroCampos;
-    int limiteCampos;
+    Tupla** tuplas;
     char** nomesArquivosBlocos;
+    int numeroCampos;
+    int numeroTuplas;
     int numeroBlocos;
+    int limiteCampos;
+    int limiteTuplas;
     int limiteBlocos;
-    Tupla **tuplas;
 };
 
-struct tupla{
+struct tupla {
     Associacao **associacoes;
 };
 
 struct associacao {
     Campo *campo;
     void* valor;
-
 };
+
 #define MAXIMO_CAMPOS 10;
 #define MAXIMO_BLOCOS 10;
+#define MAXIMO_TUPLAS 10;
 
 Tabela* criarTabela(char* nome);
 void adicionarCampo(Tabela* tabela, Campo* campo);
