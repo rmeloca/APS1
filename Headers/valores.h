@@ -18,5 +18,5 @@ struct valores {
 };
 
 int inserirRegistro(Valores *valores);
-int calcTamanhoInserir(Valores *valores);
+int calcTamanhoInserir(Tupla *tupla, int qtdAss);
 char** procurarEspaco(Tabela *tabela, int tamanho);

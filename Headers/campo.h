@@ -16,6 +16,7 @@ struct campo {
     char* nome;
     Tipo tipo;
     int bytes;
+    //void *dado;
 };
 
 Campo* criarCampo(char* nome, Tipo tipo, int bytes);
