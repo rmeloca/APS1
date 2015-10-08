@@ -85,6 +85,6 @@ void adicionarTupla(Tabela* tabela, Tupla* tupla);
 
 Tupla* criarTupla(Tabela* tabela) {
     Tupla* tupla = (Tupla*) malloc(sizeof (Tupla));
-    tupla->associacao = (Associacao**) calloc(tabela->numeroCampos, sizeof (Associacao*));
+    tupla->associacoes = (Associacao**) calloc(tabela->numeroCampos, sizeof (Associacao*));
     return tupla;
 }
