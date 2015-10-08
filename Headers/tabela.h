@@ -26,6 +26,7 @@ struct tabela {
 
 struct tupla {
     Associacao **associacoes;
+    int numeroCampos;
 };
 
 struct associacao {

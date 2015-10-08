@@ -13,18 +13,21 @@
 Tabela* criarTabela(char* nome) {
     Tabela* tabela = (Tabela*) malloc(sizeof (Tabela));
 
-    tabela->limiteCampos = MAXIMO_CAMPOS;
-    tabela->limiteBlocos = MAXIMO_BLOCOS;
-
-    tabela->campos = (Campo**) calloc(tabela->limiteCampos, sizeof (Campo*));
-    tabela->nomesArquivosBlocos = (char**) calloc(tabela->limiteBlocos, sizeof (char*));
     tabela->nome = (char*) calloc(strlen(nome), sizeof (char));
-
     strcpy(tabela->nome, nome);
 
+    tabela->limiteBlocos = MAXIMO_BLOCOS;
+    tabela->nomesArquivosBlocos = (char**) calloc(tabela->limiteBlocos, sizeof (char*));
     tabela->numeroBlocos = 0;
+
+    tabela->limiteCampos = MAXIMO_CAMPOS;
+    tabela->campos = (Campo**) calloc(tabela->limiteCampos, sizeof (Campo*));
     tabela->numeroCampos = 0;
-    tabela->tuplas = NULL;
+
+    tabela->limiteTuplas = MAXIMO_TUPLAS;
+    //nota-se que ao persistir o arquivo auxiliar, inclui-se as tuplas inicializadas
+    tabela->tuplas = (Tupla*) calloc(tabela->limiteTuplas, sizeof (Tupla));
+    tabela->numeroTuplas = 0;
     return tabela;
 }
 
@@ -59,11 +62,45 @@ Campo* getCampo(Tabela* tabela, char* nome) {
     return NULL;
 }
 
+Tupla* criarTupla(Tabela* tabela) {
+    Campo* campo;
+    Tupla* tupla = (Tupla*) malloc(sizeof (Tupla));
+    tupla->numeroCampos = tabela->numeroCampos;
+    tupla->associacoes = (Associacao**) calloc(tupla->numeroCampos, sizeof (Associacao*));
+    int i;
+    //cria tupla ordenado segundo os campos da tabela
+    for (i = 0; i < tupla->numeroCampos; i++) {
+        campo = tabela->campos[i];
+        tupla->associacoes = criarAssociacao(campo);
+    }
+
+    return tupla;
+}
+
+void adicionarTupla(Tabela* tabela, Tupla* tupla) {
+    if (tabela->numeroTuplas == tabela->limiteTuplas) {
+        return;
+    }
+    tabela->tuplas[tabela->numeroTuplas] = tupla;
+    tabela->numeroTuplas++;
+}
+
 Associacao* criarAssociacao(Campo* campo) {
     Associacao* associacao = (Associacao*) malloc(sizeof (Associacao));
     //observa-se que não pede-se memória para campo, uma vez que ele é apenas uma referência ao item já persistido
     associacao->campo = campo;
     return associacao;
+}
+
+Associacao* findAssociacao(Tupla* tupla, Campo* campo) {
+    int i;
+    Associacao* associacao;
+    for (i = 0; i < tupla->numeroCampos; i++) {
+        associacao = tupla->associacoes[i];
+        if (isCamposEquals(associacao->campo, campo)) {
+            return associacao;
+        }
+    }
 }
 
 void associarValor(Associacao* associacao, void* valor) {
@@ -78,13 +115,4 @@ void associarValor(Associacao* associacao, void* valor) {
     }
     associacao->valor = malloc(tamanho);
     associacao->valor = valor;
-}
-
-void adicionarAssociacao(Tupla* tupla, Associacao* associacao);
-void adicionarTupla(Tabela* tabela, Tupla* tupla);
-
-Tupla* criarTupla(Tabela* tabela) {
-    Tupla* tupla = (Tupla*) malloc(sizeof (Tupla));
-    tupla->associacoes = (Associacao**) calloc(tabela->numeroCampos, sizeof (Associacao*));
-    return tupla;
 }

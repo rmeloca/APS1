@@ -18,3 +18,7 @@ Campo* criarCampo(char* nome, Tipo tipo, int bytes) {
     campo->bytes = bytes;
     return campo;
 }
+
+int isCamposEquals(Campo* campo1, Campo* campo2) {
+    return strcmp(campo1->nome, campo2->nome) == 0;
+}

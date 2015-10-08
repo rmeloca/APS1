@@ -139,7 +139,10 @@ void interpretarInsertInto(Banco* banco, char* nomeArquivo) {
     FILE* file;
     TokenReader* tokenReader;
     Tabela* tabela;
-    Campo* campo;
+    Campo** campos;
+    int contadorCampos;
+    Tupla* tupla;
+    Associacao* associacao;
     char* linha;
     char* token;
     char* concatenacao;
@@ -164,6 +167,10 @@ void interpretarInsertInto(Banco* banco, char* nomeArquivo) {
             token = nextToken(tokenReader); //abre parêntesis
         }
 
+        tupla = criarTupla(tabela);
+        //não é preciso pedir memória para cada posição, uma vez que ela apenas apontará para uma região já alocada
+        campos = (Campo**) calloc(tupla->numeroCampos, sizeof (Campo*));
+        contadorCampos = 0;
         while (hasMoreTokens(tokenReader)) {
             //campos
             while (1) {
@@ -172,19 +179,18 @@ void interpretarInsertInto(Banco* banco, char* nomeArquivo) {
                     break;
                 }
                 printf("campo: %s\n", token);
-                campo = getCampo(tabela, token);
-                //adicionarAssociacao
-                //criarAssociacao
+                campos[contadorCampos] = getCampo(tabela, token);
+                contadorCampos++;
                 token = nextToken(tokenReader); //comma
             }
 
+            contadorCampos = 0;
             //Para cada valor
             while (1) {
                 token = nextToken(tokenReader); //campo
                 if (!strcmp(token, ";")) {
                     break;
                 }
-                printf("valor: %s\n", token);
 
                 //concatenar tokens, retirar apóstrofes
                 if (!strcmp(token, "'")) {
@@ -196,8 +202,15 @@ void interpretarInsertInto(Banco* banco, char* nomeArquivo) {
                     }
                 }
 
+                printf("valor: %s\n", token);
+                associacao = findAssociacao(tupla, campos[contadorCampos]);
+                associarValor(associacao, (char*) token);
+                contadorCampos++;
+
                 token = nextToken(tokenReader); //comma
             }
+            adicionarTupla(tabela, tupla);
+            free(campos);
         }
     }
 }
