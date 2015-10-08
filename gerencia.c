@@ -209,7 +209,7 @@ void gerarBloco(char* nomeArquivo) {
         fwrite(&n, sizeof (int), 1, file);
     }
 
-    short int deslocamento = 2000;
+    short int deslocamento = 2048;
     fseek(file, 4, SEEK_SET);
     fwrite(&deslocamento, sizeof (short int), 1, file);
 
