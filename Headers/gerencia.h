@@ -6,7 +6,7 @@
  */
 
 #include "token.h"
-#include "valores.h"
+#include "inserir.h"
 
 void interpretarCreateTable(Banco* banco, char* nomeArquivo);
 void interpretarInsertInto(Banco* banco, char* nomeArquivos);

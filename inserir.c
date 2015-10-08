@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "Headers/valores.h"
+#include "Headers/inserir.h"
 
 //propagar retorno
 //retornar tuplas gravadas
@@ -25,7 +25,7 @@ int calcTamanhoInserir(Tupla *tupla, int qtdAss) {
     Associacao *associacao;
     //percorre todas associacoes
     for (i = 0; i < qtdAss; i++) {
-        associacao = tupla->associacao[i];
+        associacao = tupla->associacoes[i];
 
         if (associacao->campo->tipo == INTEGER) {
             tamanho += associacao->campo->bytes;
