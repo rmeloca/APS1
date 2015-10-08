@@ -1,7 +1,7 @@
 CREATE TABLE Departamento(
-Dnome varchar(20),
+    Dnome varchar(20),
 Dnumero integer,
-Cpf_gerente char(15),
+                Cpf_gerente char(15),
 Data_inicio_gerente boolean
 );
 

@@ -24,7 +24,7 @@ Tabela* criarTabela(char* nome) {
 
     tabela->numeroBlocos = 0;
     tabela->numeroCampos = 0;
-
+    tabela->tuplas = NULL;
     return tabela;
 }
 
@@ -57,4 +57,34 @@ Campo* getCampo(Tabela* tabela, char* nome) {
         }
     }
     return NULL;
+}
+
+Associacao* criarAssociacao(Campo* campo) {
+    Associacao* associacao = (Associacao*) malloc(sizeof (Associacao));
+    //observa-se que não pede-se memória para campo, uma vez que ele é apenas uma referência ao item já persistido
+    associacao->campo = campo;
+    return associacao;
+}
+
+void associarValor(Associacao* associacao, void* valor) {
+    int tamanho;
+    if (associacao->campo->tipo == VARCHAR) {
+        tamanho = strlen((char*) valor);
+        if (tamanho > associacao->campo->bytes) {
+            return;
+        }
+    } else {
+        tamanho = associacao->campo->bytes;
+    }
+    associacao->valor = malloc(tamanho);
+    associacao->valor = valor;
+}
+
+void adicionarAssociacao(Tupla* tupla, Associacao* associacao);
+void adicionarTupla(Tabela* tabela, Tupla* tupla);
+
+Tupla* criarTupla(Tabela* tabela) {
+    Tupla* tupla = (Tupla*) malloc(sizeof (Tupla));
+    tupla->associacao = (Associacao**) calloc(tabela->numeroCampos, sizeof (Associacao*));
+    return tupla;
 }

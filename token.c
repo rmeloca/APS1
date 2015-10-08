@@ -21,7 +21,7 @@ void setTokenString(TokenReader *reader, char* str) {
 }
 
 TokenReader* newTokenReader(char *str) {
-    TokenReader *tokenReader = (TokenReader*) calloc(1, sizeof (TokenReader));
+    TokenReader *tokenReader = (TokenReader*) malloc(sizeof (TokenReader));
     setTokenString(tokenReader, str);
     return tokenReader;
 }
@@ -31,7 +31,7 @@ void freeTokenReader(TokenReader *reader) {
 }
 
 int hasMoreTokens(TokenReader *reader) {
-    while (reader->str[reader->pos] == ' ') {
+    while (reader->str[reader->pos] == ' ' || reader->str[reader->pos] == 9) {
         reader->pos++;
     }
     return reader->pos < reader->length;

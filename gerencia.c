@@ -10,7 +10,7 @@
 #include <string.h>
 #include "Headers/gerencia.h"
 
-int persistirBanco(Banco * banco, char* nomeArquivoBanco) {
+int persistirBanco(Banco* banco, char* nomeArquivoBanco) {
     FILE* file;
     file = fopen(nomeArquivoBanco, "wb");
     if (file == NULL) {
@@ -33,7 +33,34 @@ Banco* carregarBanco(char* nomeArquivoBanco) {
     return banco;
 }
 
-//corrigir tabulações
+void normalizarArquivo(char* nomeArquivo) {
+    FILE* file;
+    FILE* temp;
+    TokenReader* tokenReader;
+    char* linha;
+    char* token;
+
+    file = fopen(nomeArquivo, "r");
+    temp = fopen("Arquivos/temp", "w");
+    linha = (char*) calloc(1000, sizeof (char));
+    tokenReader = newTokenReader(linha);
+
+    while (fgets(linha, 1000, file) != NULL) {
+        setTokenString(tokenReader, linha);
+        while (hasMoreTokens(tokenReader)) {
+            token = nextToken(tokenReader);
+            if (strcasecmp(token, "\n")) {
+                fputs(token, temp);
+                fputs(" ", temp);
+                if (!strcasecmp(token, ";")) {
+                    fputs("\n", temp);
+                }
+            }
+        }
+    }
+    fclose(file);
+    fclose(temp);
+}
 
 void interpretarCreateTable(Banco* banco, char* nomeArquivo) {
     FILE* file;
@@ -42,66 +69,68 @@ void interpretarCreateTable(Banco* banco, char* nomeArquivo) {
     Campo* campo;
     char* linha;
     char* token;
+    char* nomeBloco;
     char* nomeCampo;
     Tipo tipoCampo;
     int bytesCampo;
 
-    file = fopen(nomeArquivo, "r");
+    normalizarArquivo(nomeArquivo);
+    file = fopen("Arquivos/temp", "r");
     linha = (char*) calloc(1000, sizeof (char));
+    nomeBloco = (char*) calloc(100, sizeof (char));
 
-    //Para todo arquivo
+    //Cada linha corresponde à um CREATE TABLE
+    tokenReader = newTokenReader(linha);
     while (fgets(linha, 1000, file) != NULL) {
-        tokenReader = newTokenReader(linha);
+        setTokenString(tokenReader, linha);
 
-        //Para cada CREATE TABLE
-        while (hasMoreTokens(tokenReader)) {
+        token = nextToken(tokenReader); //CREATE
+        if (!strcasecmp(token, "CREATE")) {
+            token = nextToken(tokenReader); //TABLE
             token = nextToken(tokenReader);
-
-            if (!strcasecmp(token, "TABLE")) {
-                token = nextToken(tokenReader);
-                tabela = criarTabela(token);
-                adicionarTabela(banco, tabela);
-
-                //Para cada campo
-                while (1) {
-                    fgets(linha, 1000, file);
-                    setTokenString(tokenReader, linha);
-
-                    nomeCampo = nextToken(tokenReader);
-                    if (!strcasecmp(nomeCampo, ")")) {
-                        break;
-                    }
-
-                    token = nextToken(tokenReader);
-                    if (!strcasecmp(token, "INTEGER")) {
-                        tipoCampo = INTEGER;
-                        bytesCampo = 4;
-                    } else if (!strcasecmp(token, "BOOLEAN")) {
-                        tipoCampo = BOOLEAN;
-                        bytesCampo = 1;
-                    } else {
-                        if (!strcasecmp(token, "CHAR")) {
-                            tipoCampo = CHAR;
-                        } else if (!strcasecmp(token, "VARCHAR")) {
-                            tipoCampo = VARCHAR;
-                        }
-                        token = nextToken(tokenReader);
-                        token = nextToken(tokenReader);
-                        bytesCampo = atoi(token);
-                    }
-                    campo = criarCampo(nomeCampo, tipoCampo, bytesCampo);
-                    adicionarCampo(tabela, campo);
-                }
-                token = (char*) calloc(100, sizeof (char));
-                strcpy(token, "Arquivos/");
-                strcat(token, tabela->nome);
-                sprintf(nomeCampo, "_%d", tabela->numeroBlocos);
-                strcat(token, nomeCampo);
-                strcat(token, ".dat");
-                gerarBloco(token);
-                adicionarBloco(tabela, token);
-            }
+            tabela = criarTabela(token);
+            adicionarTabela(banco, tabela);
+            token = nextToken(tokenReader); //abre parêntesis
         }
+
+        while (hasMoreTokens(tokenReader)) {
+            nomeCampo = nextToken(tokenReader); //nome
+            if (!strcasecmp(nomeCampo, ";")) {
+                break;
+            }
+
+            token = nextToken(tokenReader); //tipo
+
+            if (!strcasecmp(token, "INTEGER")) {
+                tipoCampo = INTEGER;
+                bytesCampo = 4;
+            } else if (!strcasecmp(token, "BOOLEAN")) {
+                tipoCampo = BOOLEAN;
+                bytesCampo = 1;
+            } else {
+                if (!strcasecmp(token, "CHAR")) {
+                    tipoCampo = CHAR;
+                } else if (!strcasecmp(token, "VARCHAR")) {
+                    tipoCampo = VARCHAR;
+                }
+                token = nextToken(tokenReader); //abre parêntesis
+                token = nextToken(tokenReader); //bytes
+                bytesCampo = atoi(token);
+                token = nextToken(tokenReader); //fecha parêntesis
+            }
+            token = nextToken(tokenReader); //vírgula
+            campo = criarCampo(nomeCampo, tipoCampo, bytesCampo);
+            adicionarCampo(tabela, campo);
+        }
+
+        //criar bloco para cada tabela
+        sprintf(nomeCampo, "_%d", tabela->numeroBlocos);
+        strcpy(nomeBloco, "Arquivos/");
+        strcat(nomeBloco, tabela->nome);
+        strcat(nomeBloco, nomeCampo);
+        strcat(nomeBloco, ".dat");
+        gerarBloco(nomeBloco);
+        adicionarBloco(tabela, nomeBloco);
     }
     fclose(file);
 }
@@ -111,66 +140,66 @@ void interpretarInsertInto(Banco* banco, char* nomeArquivo) {
     TokenReader* tokenReader;
     Tabela* tabela;
     Campo* campo;
-    Valores* valores;
     char* linha;
     char* token;
     char* concatenacao;
 
-    file = fopen(nomeArquivo, "r");
+    normalizarArquivo(nomeArquivo);
+    file = fopen("Arquivos/temp", "r");
     linha = (char*) calloc(1000, sizeof (char));
 
-    //Para todo arquivo
+    //Para cada INSERT
+    tokenReader = newTokenReader(linha);
     while (fgets(linha, 1000, file) != NULL) {
-        tokenReader = newTokenReader(linha);
-        token = nextToken(tokenReader);
-        //Para cada INSERT
+        setTokenString(tokenReader, linha);
+        token = nextToken(tokenReader); //INSERT
+
+        if (!strcasecmp(token, "INSERT")) {
+            token = nextToken(tokenReader); //INTO
+            token = nextToken(tokenReader);
+            tabela = getTabela(banco, token);
+            if (!tabela) {
+                return;
+            }
+            token = nextToken(tokenReader); //abre parêntesis
+        }
+
         while (hasMoreTokens(tokenReader)) {
-            if (!strcasecmp(token, "TABLE")) {
-                token = nextToken(tokenReader);
-                tabela = getTabela(banco, token);
-                if (!tabela) {
-                    return;
+            //campos
+            while (1) {
+                token = nextToken(tokenReader); //campo
+                if (!strcmp(token, "VALUES")) {
+                    break;
                 }
-                token = nextToken(tokenReader);
-
-                //Para cada atributo
-                while (1) {
-                    token = nextToken(tokenReader);
-                    if (!strcmp(token, ")")) {
-                        break;
-                    }
-                    printf("campo: %s\n", token);
-                    campo = getCampo(tabela, token);
-                    //lista de campos
-                }
-
-                fgets(linha, 1000, file);
-                setTokenString(tokenReader, linha);
-                token = nextToken(tokenReader);
-                token = nextToken(tokenReader);
-
-                //Para cada valor
-                while (hasMoreTokens(tokenReader)) {
-                    token = nextToken(tokenReader);
-                    if (!strcmp(token, ")")) {
-                        break;
-                    }
-                    //concatenar tokens, retirar apóstrofes
-                    if (!strcmp(token, "'")) {
-                        strcat(concatenacao, token);
-                        token = nextToken(tokenReader);
-                        while (strcmp(token, "'")) {
-                            strcat(concatenacao, " ");
-                            strcat(concatenacao, token);
-                        }
-                    }
-                }
-
+                printf("campo: %s\n", token);
+                campo = getCampo(tabela, token);
+                //adicionarAssociacao
+                //criarAssociacao
+                token = nextToken(tokenReader); //comma
             }
 
+            //Para cada valor
+            while (1) {
+                token = nextToken(tokenReader); //campo
+                if (!strcmp(token, ";")) {
+                    break;
+                }
+                printf("valor: %s\n", token);
+
+                //concatenar tokens, retirar apóstrofes
+                if (!strcmp(token, "'")) {
+                    strcat(concatenacao, token);
+                    token = nextToken(tokenReader);
+                    while (strcmp(token, "'")) {
+                        strcat(concatenacao, " ");
+                        strcat(concatenacao, token);
+                    }
+                }
+
+                token = nextToken(tokenReader); //comma
+            }
         }
     }
-    inserirRegistro(valores);
 }
 
 void gerarBloco(char* nomeArquivo) {

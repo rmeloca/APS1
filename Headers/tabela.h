@@ -23,7 +23,7 @@ struct tabela {
 
 };
 
-struct tupla {
+struct tupla{
     Associacao **associacao;
 };
 
