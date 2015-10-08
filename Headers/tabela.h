@@ -20,7 +20,6 @@ struct tabela {
     int numeroBlocos;
     int limiteBlocos;
     Tupla **tuplas;
-    int numeroTuplas;
 };
 
 struct tupla{
