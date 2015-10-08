@@ -20,10 +20,10 @@ struct tabela {
     int numeroBlocos;
     int limiteBlocos;
     Tupla **tuplas;
-    
+
 };
 
-struct tupla{
+struct tupla {
     Associacao **associacao;
 };
 
@@ -39,3 +39,4 @@ Tabela* criarTabela(char* nome);
 void adicionarCampo(Tabela* tabela, Campo* campo);
 Campo* getCampo(Tabela* tabela, char* nome);
 void adicionarBloco(Tabela* tabela, char* nomeArquivo);
+Associacao* criarAssociacao(Campo* campo);
