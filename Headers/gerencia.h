@@ -13,3 +13,4 @@ void interpretarInsertInto(Banco* banco, char* nomeArquivos);
 void gerarBloco(char* nomeArquivo);
 Banco* carregarBanco(char* nomeArquivoBanco);
 int persistirBanco(Banco * banco, char* nomeArquivoBanco);
+void normalizarArquivo(char* nomeArquivo);
