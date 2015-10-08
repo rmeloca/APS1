@@ -17,9 +17,6 @@
 
 //Falta procurar espaço dos excluidos
 
-void inserir(Banco banco) {
-}
-
 int calcTamanhoInserir(Tupla *tupla, int qtdAss) {
     int i, tamanho = 0;
     Associacao *associacao;
@@ -47,11 +44,11 @@ int calcTamanhoInserir(Tupla *tupla, int qtdAss) {
         tamanho++;
     }
     tamanho += qtdAss / 8;
-    
+
     return tamanho;
 }
 
-int inserirRegistro(Valores *valores) {
+int inserirRegistro(Banco* banco) {
 }
 
 char** procurarEspaco(Tabela *tabela, int tamanho) {

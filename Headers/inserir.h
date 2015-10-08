@@ -7,16 +7,6 @@
 
 #include "banco.h"
 
-typedef struct valores Valores;
-
-struct valores {
-    Tabela* tabela;
-    int** integer;
-    char** boolean;
-    char** chars;
-    char** varchar;
-};
-
-int inserirRegistro(Valores *valores);
+int inserirRegistro(Banco *banco);
 int calcTamanhoInserir(Tupla *tupla, int qtdAss);
 char** procurarEspaco(Tabela *tabela, int tamanho);
