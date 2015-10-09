@@ -65,11 +65,10 @@ Campo* getCampo(Tabela* tabela, char* nome) {
 Tupla* criarTupla(Tabela* tabela) {
     Campo* campo;
     Tupla* tupla = (Tupla*) malloc(sizeof (Tupla));
-    tupla->numeroCampos = tabela->numeroCampos;
-    tupla->associacoes = (Associacao**) calloc(tupla->numeroCampos, sizeof (Associacao*));
+    tupla->associacoes = (Associacao**) calloc(tabela->numeroCampos, sizeof (Associacao*));
     int i;
     //cria tupla ordenado segundo os campos da tabela
-    for (i = 0; i < tupla->numeroCampos; i++) {
+    for (i = 0; i < tabela->numeroCampos; i++) {
         campo = tabela->campos[i];
         tupla->associacoes[i] = criarAssociacao(campo);
     }
@@ -92,10 +91,10 @@ Associacao* criarAssociacao(Campo* campo) {
     return associacao;
 }
 
-Associacao* findAssociacao(Tupla* tupla, Campo* campo) {
+Associacao* findAssociacao(Tabela* tabela, Tupla* tupla, Campo* campo) {
     int i;
     Associacao* associacao;
-    for (i = 0; i < tupla->numeroCampos; i++) {
+    for (i = 0; i < tabela->numeroCampos; i++) {
         associacao = tupla->associacoes[i];
         if (isCamposEquals(associacao->campo, campo)) {
             return associacao;

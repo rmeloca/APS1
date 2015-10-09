@@ -26,7 +26,6 @@ struct tabela {
 
 struct tupla {
     Associacao **associacoes;
-    int numeroCampos;
 };
 
 struct associacao {
@@ -45,5 +44,5 @@ Campo* getCampo(Tabela* tabela, char* nome);
 Tupla* criarTupla(Tabela* tabela);
 void adicionarTupla(Tabela* tabela, Tupla* tupla);
 Associacao* criarAssociacao(Campo* campo);
-Associacao* findAssociacao(Tupla* tupla, Campo* campo);
+Associacao* findAssociacao(Tabela* tabela, Tupla* tupla, Campo* campo);
 void associarValor(Associacao* associacao, void* valor);

@@ -74,6 +74,7 @@ void interpretarCreateTable(Banco* banco, char* nomeArquivo) {
     Tipo tipoCampo;
     int bytesCampo;
 
+    //chamar de fora?
     normalizarArquivo(nomeArquivo);
     file = fopen("Arquivos/temp", "r");
     linha = (char*) calloc(1000, sizeof (char));
@@ -145,8 +146,8 @@ void interpretarInsertInto(Banco* banco, char* nomeArquivo) {
     Associacao* associacao;
     char* linha;
     char* token;
-    char* concatenacao;
 
+    //chamar de fora?
     normalizarArquivo(nomeArquivo);
     file = fopen("Arquivos/temp", "r");
     linha = (char*) calloc(1000, sizeof (char));
@@ -169,21 +170,21 @@ void interpretarInsertInto(Banco* banco, char* nomeArquivo) {
 
         tupla = criarTupla(tabela);
         //não é preciso pedir memória para cada posição, uma vez que ela apenas apontará para uma região já alocada
-        campos = (Campo**) calloc(tupla->numeroCampos, sizeof (Campo*));
+        campos = (Campo**) calloc(tabela->numeroCampos, sizeof (Campo*));
         contadorCampos = 0;
         while (hasMoreTokens(tokenReader)) {
             //campos
             while (1) {
                 token = nextToken(tokenReader); //campo
-                if (!strcmp(token, "VALUES")) {
+                if (!strcasecmp(token, "VALUES")) {
                     break;
                 }
-                printf("campo: %s\n", token);
                 campos[contadorCampos] = getCampo(tabela, token);
                 contadorCampos++;
                 token = nextToken(tokenReader); //comma
             }
 
+            token = nextToken(tokenReader); //abre parêntesis
             contadorCampos = 0;
             //Para cada valor
             while (1) {
@@ -192,18 +193,11 @@ void interpretarInsertInto(Banco* banco, char* nomeArquivo) {
                     break;
                 }
 
-                //concatenar tokens, retirar apóstrofes
-                if (!strcmp(token, "'")) {
-                    strcat(concatenacao, token);
-                    token = nextToken(tokenReader);
-                    while (strcmp(token, "'")) {
-                        strcat(concatenacao, " ");
-                        strcat(concatenacao, token);
-                    }
+                if (token[0] == '\'') {
+
                 }
 
-                printf("valor: %s\n", token);
-                associacao = findAssociacao(tupla, campos[contadorCampos]);
+                associacao = findAssociacao(tabela, tupla, campos[contadorCampos]);
                 associarValor(associacao, (char*) token);
                 contadorCampos++;
 

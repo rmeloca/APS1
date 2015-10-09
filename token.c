@@ -52,6 +52,13 @@ char* nextToken(TokenReader *reader) {
     while (isalnum(reader->str[i]) || reader->str[i] == '_') {
         i++;
     }
+    if (reader->str[i] == '\'') {
+        i++;
+        while (reader->str[i] != '\'') {
+            i++;
+        }
+        i++;
+    }
     if (i == reader->pos) {
         i++;
     }
