@@ -35,21 +35,46 @@ void adicionarTabela(Banco* banco, Tabela* tabela) {
 
 void imprimirBanco(Banco* banco) {
     Tabela* tabela;
+    Tupla* tupla;
+    Associacao* associacao;
     Campo* campo;
+    char* nome;
+    int i, j, k;
+
     printf("Número Tabelas: %d\n", banco->numeroTabelas);
     printf("Limite Tabelas: %d\n", banco->limiteTabelas);
-    int i, j;
+    printf("Nome Arquivo Banco: %s\n", banco->nomeArquivoBanco);
+
     for (i = 0; i < banco->numeroTabelas; i++) {
         tabela = banco->tabelas[i];
+
         printf("----%s----\n", tabela->nome);
-        printf("Número Campos: %d\n", tabela->numeroCampos);
-        printf("Limite Campos: %d\n", tabela->limiteCampos);
+        printf("Número Campos: %d/%d\n", tabela->numeroCampos, tabela->limiteCampos);
+        printf("Número Tuplas: %d/%d\n", tabela->numeroTuplas, tabela->limiteTuplas);
+        printf("Número Blocos: %d/%d\n", tabela->numeroBlocos, tabela->limiteBlocos);
+
+        for (j = 0; j < tabela->numeroBlocos; j++) {
+            nome = tabela->nomesArquivosBlocos[j];
+            printf("%s\n", nome);
+        }
+        printf("\n");
+
         for (j = 0; j < tabela->numeroCampos; j++) {
             campo = tabela->campos[j];
             printf("\n");
             printf("Campo: %s\n", campo->nome);
             printf("Tipo: %d\n", campo->tipo);
             printf("Bytes: %d\n", campo->bytes);
+        }
+
+        printf("\n");
+
+        for (j = 0; j < tabela->numeroTuplas; j++) {
+            tupla = tabela->tuplas[j];
+            for (k = 0; k < tabela->numeroCampos; k++) {
+                associacao = tupla->associacoes[k];
+                printf("Valor: %s\n", (char*) associacao->valor);
+            }
         }
     }
 }
