@@ -56,7 +56,7 @@ int inserirRegistro(Banco* banco) {
             Tupla *tupla = tabela->tuplas[j];
 
             int tamanho = calcTamanhoInserir(tupla, tabela->numeroCampos);
-            int numeroDoBloco = obterBloco(tupla, tamanho, tabela->nomesArquivosBlocos, tabela->numeroBlocos, tabela->nome);
+            int numeroDoBloco = obterBloco(tamanho, tabela->nomesArquivosBlocos, tabela->numeroBlocos, tabela->nome);
             if (numeroDoBloco != tabela->numeroBlocos) {
                 tabela->numeroBlocos++;
             }
