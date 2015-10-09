@@ -91,6 +91,7 @@ int inserirRegistro(Banco* banco) {
                         tamanho = strlen(associacao->valor);
                     }
                     fseek(file,comecoRegistro,SEEK_SET);
+
                     //calcular tamnho sem os vars e escrever ...
 
                 }
@@ -101,7 +102,7 @@ int inserirRegistro(Banco* banco) {
 }
 //Devolve o numero do bloco para insercao
 
-int obterBloco(Tupla *tupla, int tamanho, char** nomesArquivosBlocos, int numeroBlocos, char* nomeTabela) {
+int obterBloco(int tamanho, char** nomesArquivosBlocos, int numeroBlocos, char* nomeTabela) {
 
     short int qtdRegistros, iniEspacoLivre, fimEspacoLivre;
 

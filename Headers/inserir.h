@@ -9,4 +9,4 @@
 
 int calcTamanhoInserir(Tupla *tupla, int qtdAss);
 int inserirRegistro(Banco* banco);
-int obterBloco(Tupla *tupla, int tamanho, char** nomesArquivosBlocos, int numeroBlocos, char* nomeTabela);
+int obterBloco(int tamanho, char** nomesArquivosBlocos, int numeroBlocos, char* nomeTabela);
