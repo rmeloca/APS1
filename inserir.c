@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "Headers/inserir.h"
 
 //propagar retorno
@@ -55,13 +56,17 @@ int inserirRegistro(Banco* banco) {
         for (j = 0; tabela->numeroTuplas > j; j++) {
             Tupla *tupla = tabela->tuplas[j];
 
+            //mapa de bits
+            int* mapaBits;
+            mapaBits = calloc(((tabela->numeroCampos / 8) + 1), sizeof (int));
+
             int tamanho = calcTamanhoInserir(tupla, tabela->numeroCampos);
             int numeroDoBloco = obterBloco(tamanho, tabela->nomesArquivosBlocos, tabela->numeroBlocos, tabela->nome);
             if (numeroDoBloco != tabela->numeroBlocos) {
                 tabela->numeroBlocos++;
             }
 
-            int qtdRegistros, comecoRegistro, espacoLivre, novoEspacoLivre, qtdVar = 0, tamanhoVar;
+            int qtdRegistros, comecoRegistro, espacoLivre, novoEspacoLivre, qtdVar = -1, tamanhoVar, comecoVar = 0;
 
             FILE* file;
             file = fopen(tabela->nomesArquivosBlocos[numeroDoBloco], "w+");
@@ -82,23 +87,51 @@ int inserirRegistro(Banco* banco) {
             //Insere o registro
 
             for (k = 0; tabela->numeroCampos > k; k++) {
+                qtdVar++;
                 Associacao* associacao = tupla->associacoes[k];
                 Campo* campo = associacao->campo;
                 if (campo->tipo == VARCHAR) {
                     tamanhoVar = 0;
-                    qtdVar++;
                     if (associacao->valor) {
                         tamanho = strlen(associacao->valor);
                     }
-                    fseek(file,comecoRegistro,SEEK_SET);
-
-                    //calcular tamnho sem os vars e escrever ...
-
+                    if (comecoVar == 0) {
+                        comecoVar = (tamanho - tamanhoVar) + 1;
+                    } else {
+                        comecoVar -= tamanhoVar;
+                    }
+                    //insere ponteiro e tamanho do varchar
+                    comecoRegistro += qtdVar * 4;
+                    fseek(file, comecoRegistro, SEEK_SET);
+                    fwrite(&comecoVar, sizeof (short int), 1, file);
+                    fwrite(&tamanhoVar, sizeof (short int), 1, file);
+                    //inseri o varchar na posicao correta
+                    fseek(file, comecoVar, SEEK_SET);
+                    fwrite(&associacao->valor, tamanhoVar, 1, file);
+                    setMapaBits(k, mapaBits);
                 }
 
             }
+
+            for (k = 0; tabela->numeroCampos > k; k++) {
+                Associacao* associacao = tupla->associacoes[k];
+                Campo* campo = associacao->campo;
+                fseek(file, comecoRegistro, SEEK_SET);
+                if ((campo->tipo) == INTEGER) {
+                    fwrite(&(associacao->valor), sizeof (int), 1, file);
+                } else if ((campo->tipo) == CHAR) {
+                    fwrite(&(associacao->valor), sizeof (char), campo->bytes, file);
+                } else if ((campo->tipo) == BOOLEAN) {
+                    fwrite(&(associacao->valor), sizeof (char), 1, file);
+                }
+                setMapaBits(k, mapaBits);
+            }
         }
     }
+}
+
+void setMapaBits(int posicao, int* mapaBits) {
+    mapaBits[(posicao + 1) / 8] = pow(2,(posicao % 8));
 }
 //Devolve o numero do bloco para insercao
 

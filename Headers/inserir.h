@@ -10,3 +10,4 @@
 int calcTamanhoInserir(Tupla *tupla, int qtdAss);
 int inserirRegistro(Banco* banco);
 int obterBloco(int tamanho, char** nomesArquivosBlocos, int numeroBlocos, char* nomeTabela);
+void setMapaBits(int posicao, int* mapaBits);
