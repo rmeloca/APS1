@@ -62,6 +62,7 @@ int calcTamanhoInserir(Tupla *tupla, int qtdAss) {
     return tamanho;
 }
 
+//o que você acha de receber só a tabela e eu chamar a função só pras tabelas que houveram inserts?
 int inserirRegistro(Banco* banco) {
     int i, j, k;
     //Percorrer todo banco para verirficar todas tuplas a ser inseridas
@@ -178,6 +179,9 @@ int obterBloco(int tamanho, char** nomesArquivosBlocos, int numeroBlocos, char* 
 //ler todos os registros
 //liberar as tuplas
 //populá-los nas tuplas
-void carregarRegistros(Tabela* tabela);
+void carregarRegistros(Tabela* tabela){
+}
 
-int remover(Tabela* tabela, Campo* campo, char operador, void* valor);
+int remover(Tabela* tabela, Campo* campo, char operador, void* valor){
+    return 0;
+}

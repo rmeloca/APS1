@@ -204,6 +204,8 @@ void interpretarInsertInto(Banco* banco, char* nomeArquivo) {
         adicionarTupla(tabela, tupla);
         free(campos);
     }
+    fclose(file);
+    inserirRegistro(banco);
 }
 
 void interpretarDeleteFrom(Banco* banco, char* caminhoArquivo) {
@@ -213,6 +215,8 @@ void interpretarDeleteFrom(Banco* banco, char* caminhoArquivo) {
     Campo* campo;
     char* linha;
     char* token;
+    void* valor;
+    char operador;
 
     file = fopen(caminhoArquivo, "r");
     linha = (char*) calloc(1000, sizeof (char));
@@ -226,21 +230,39 @@ void interpretarDeleteFrom(Banco* banco, char* caminhoArquivo) {
 
         token = nextToken(tokenReader); //tabela
         tabela = getTabela(banco, token);
-        
+
         token = nextToken(tokenReader); //WHERE
-        
+
         token = nextToken(tokenReader); //campo
         campo = getCampo(tabela, token);
 
-        token = nextToken(tokenReader); //operador
-        
+        operador = nextToken(tokenReader)[0]; //operador
+
         token = nextToken(tokenReader); //valor
-        
-//        remover(tabela, campo, operador, valor);
+        valor = calloc(strlen(token), sizeof (char));
+        valor = token;
+
+        remover(tabela, campo, operador, valor);
     }
+    free(valor);
+    fclose(file);
 }
 
-void freeTuplas(Tabela* tabela){
-    //não liberar espaço do campo!
-//    tabela->tuplas->associacoes->valor;
+void freeTuplas(Tabela* tabela) {
+    int i;
+    int j;
+    Tupla* tupla;
+    Associacao* associacao;
+    //cada tupla
+    for (i = 0; i < tabela->numeroTuplas; i++) {
+        tupla = tabela->tuplas[i];
+        //cada associacao
+        for (j = 0; j < tabela->numeroCampos; j++) {
+            associacao = tupla->associacoes[i];
+            //observa-se que não libera-se o espaço dos campos
+            free(associacao->valor);
+            free(associacao);
+        }
+        free(tupla);
+    }
 }
