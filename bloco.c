@@ -9,13 +9,27 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "Headers/inserir.h"
+#include "Headers/bloco.h"
 
 //propagar retorno
 //retornar tuplas gravadas
 //param bloco
 
 //Falta procurar espaço dos excluidos
+
+void gerarBloco(char* nomeArquivo) {
+    FILE* file = fopen(nomeArquivo, "w");
+    int i, n = 0;
+    for (i = 0; i < 500; i++) {
+        fwrite(&n, sizeof (int), 1, file);
+    }
+
+    short int deslocamento = 2048;
+    fseek(file, 4, SEEK_SET);
+    fwrite(&deslocamento, sizeof (short int), 1, file);
+
+    fclose(file);
+}
 
 int calcTamanhoInserir(Tupla *tupla, int qtdAss) {
     int i, tamanho = 0;
@@ -131,7 +145,7 @@ int inserirRegistro(Banco* banco) {
 }
 
 void setMapaBits(int posicao, int* mapaBits) {
-    mapaBits[(posicao + 1) / 8] = pow(2,(posicao % 8));
+    mapaBits[(posicao + 1) / 8] = pow(2, (posicao % 8));
 }
 //Devolve o numero do bloco para insercao
 
@@ -159,3 +173,11 @@ int obterBloco(int tamanho, char** nomesArquivosBlocos, int numeroBlocos, char* 
     gerarBloco(nomeArq);
     return numeroBlocos;
 }
+
+//olhar em todos os blocos
+//ler todos os registros
+//populá-los nas tuplas
+//criar função que libera as tuplas
+void carregarRegistros(Tabela* tabela);
+
+int remover(Tabela* tabela, Campo* campo, char operador, void* valor);

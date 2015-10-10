@@ -10,9 +10,9 @@
 #include <string.h>
 #include "Headers/gerencia.h"
 
-int persistirBanco(Banco* banco, char* nomeArquivoBanco) {
+int persistirBanco(Banco* banco, char* caminhoArquivoBanco) {
     FILE* file;
-    file = fopen(nomeArquivoBanco, "wb");
+    file = fopen(caminhoArquivoBanco, "wb");
     if (file == NULL) {
         return 0;
     }
@@ -21,9 +21,9 @@ int persistirBanco(Banco* banco, char* nomeArquivoBanco) {
     return 1;
 }
 
-Banco* carregarBanco(char* nomeArquivoBanco) {
+Banco* carregarBanco(char* caminhoArquivoBanco) {
     FILE* file;
-    file = fopen(nomeArquivoBanco, "rb");
+    file = fopen(caminhoArquivoBanco, "rb");
     if (file == NULL) {
         return NULL;
     }
@@ -33,14 +33,14 @@ Banco* carregarBanco(char* nomeArquivoBanco) {
     return banco;
 }
 
-void normalizarArquivo(char* nomeArquivo) {
+void normalizarArquivo(char* caminhoArquivo) {
     FILE* file;
     FILE* temp;
     TokenReader* tokenReader;
     char* linha;
     char* token;
 
-    file = fopen(nomeArquivo, "r");
+    file = fopen(caminhoArquivo, "r");
     temp = fopen("Arquivos/temp", "w");
     linha = (char*) calloc(1000, sizeof (char));
     tokenReader = newTokenReader(linha);
@@ -62,7 +62,7 @@ void normalizarArquivo(char* nomeArquivo) {
     fclose(temp);
 }
 
-void interpretarCreateTable(Banco* banco, char* nomeArquivo) {
+void interpretarCreateTable(Banco* banco, char* caminhoArquivo) {
     FILE* file;
     TokenReader* tokenReader;
     Tabela* tabela;
@@ -74,9 +74,7 @@ void interpretarCreateTable(Banco* banco, char* nomeArquivo) {
     Tipo tipoCampo;
     int bytesCampo;
 
-    //chamar de fora?
-    normalizarArquivo(nomeArquivo);
-    file = fopen("Arquivos/temp", "r");
+    file = fopen(caminhoArquivo, "r");
     linha = (char*) calloc(1000, sizeof (char));
     nomeBloco = (char*) calloc(100, sizeof (char));
 
@@ -147,9 +145,7 @@ void interpretarInsertInto(Banco* banco, char* nomeArquivo) {
     char* linha;
     char* token;
 
-    //chamar de fora?
-    normalizarArquivo(nomeArquivo);
-    file = fopen("Arquivos/temp", "r");
+    file = fopen(nomeArquivo, "r");
     linha = (char*) calloc(1000, sizeof (char));
 
     //Para cada INSERT
@@ -194,6 +190,7 @@ void interpretarInsertInto(Banco* banco, char* nomeArquivo) {
                 break;
             }
 
+            //remover apóstrofes token[strlen(token)] substring(token, 1, strlen(token)-1)
             if (token[0] == '\'') {
 
             }
@@ -209,16 +206,41 @@ void interpretarInsertInto(Banco* banco, char* nomeArquivo) {
     }
 }
 
-void gerarBloco(char* nomeArquivo) {
-    FILE* file = fopen(nomeArquivo, "w");
-    int i, n = 0;
-    for (i = 0; i < 500; i++) {
-        fwrite(&n, sizeof (int), 1, file);
+void interpretarDeleteFrom(Banco* banco, char* caminhoArquivo) {
+    FILE* file;
+    TokenReader* tokenReader;
+    Tabela* tabela;
+    Campo* campo;
+    char* linha;
+    char* token;
+
+    file = fopen(caminhoArquivo, "r");
+    linha = (char*) calloc(1000, sizeof (char));
+
+    //para todos delete statements
+    while (fgets(linha, 1000, file) != NULL) {
+        tokenReader = newTokenReader(linha);
+
+        token = nextToken(tokenReader); //DELETE
+        token = nextToken(tokenReader); //FROM
+
+        token = nextToken(tokenReader); //tabela
+        tabela = getTabela(banco, token);
+        
+        token = nextToken(tokenReader); //WHERE
+        
+        token = nextToken(tokenReader); //campo
+        campo = getCampo(tabela, token);
+
+        token = nextToken(tokenReader); //operador
+        
+        token = nextToken(tokenReader); //valor
+        
+//        remover(tabela, campo, operador, valor);
     }
+}
 
-    short int deslocamento = 2048;
-    fseek(file, 4, SEEK_SET);
-    fwrite(&deslocamento, sizeof (short int), 1, file);
-
-    fclose(file);
+void freeTuplas(Tabela* tabela){
+    //não liberar espaço do campo!
+//    tabela->tuplas->associacoes->valor;
 }

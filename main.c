@@ -15,7 +15,7 @@
 Banco* banco;
 
 int main() {
-    char* nomeArquivo;
+    char* caminhoArquivo;
 
     //    banco = carregarBanco("Arquivos/Banco.MRdb");
     if (banco == NULL) {
@@ -35,22 +35,25 @@ int main() {
         scanf("%d", &option);
         switch (option) {
             case 1:
-                printf("Informe o nome do arquivo: ");
-                //                scanf("%s", nomeArquivo);
-                //                interpretarCreateTable(nomeArquivo);
-                interpretarCreateTable(banco, "Arquivos/create.sql");
+                printf("Informe o caminho do arquivo: ");
+//                scanf("%s", caminhoArquivo);
+//                normalizarArquivo(caminhoArquivo);
+                normalizarArquivo("Arquivos/create.sql");
+                interpretarCreateTable(banco, "Arquivos/temp");
                 persistirBanco(banco, banco->nomeArquivoBanco);
                 printf("Tabelas criadas com sucesso\n");
                 break;
             case 2:
-                printf("Informe o nome do arquivo: ");
-                //                scanf("%s", nomeArquivo);
-                //                interpretarInsertInto(nomeArquivo)
+                printf("Informe o caminho do arquivo: ");
+//                scanf("%s", caminhoArquivo);
+//                normalizarArquivo(caminhoArquivo);
+                normalizarArquivo("Arquivos/insert.sql");
                 interpretarInsertInto(banco, "Arquivos/insert.sql");
                 printf("Insert Processado %d tuplas inseridas\n", 0);
                 break;
             case 3:
-                printf("Informe o nome do arquivo: ");
+                printf("SELECT * FROM ");
+                scanf("%s", caminhoArquivo);
                 break;
             case 4:
                 printf("Informe o nome do arquivo: ");

@@ -22,3 +22,21 @@ Campo* criarCampo(char* nome, Tipo tipo, int bytes) {
 int isCamposEquals(Campo* campo1, Campo* campo2) {
     return strcmp(campo1->nome, campo2->nome) == 0;
 }
+
+char* getTipo(Tipo tipo) {
+    char* nomeTipo;
+    if (tipo == INTEGER) {
+        nomeTipo = (char*) calloc(7, sizeof (char));
+        strcpy(nomeTipo, "INTEGER");
+    } else if (tipo == BOOLEAN) {
+        nomeTipo = (char*) calloc(7, sizeof (char));
+        strcpy(nomeTipo, "BOOLEAN");
+    } else if (tipo == CHAR) {
+        nomeTipo = (char*) calloc(4, sizeof (char));
+        strcpy(nomeTipo, "CHAR");
+    } else if (tipo == VARCHAR) {
+        nomeTipo = (char*) calloc(7, sizeof (char));
+        strcpy(nomeTipo, "VARCHAR");
+    }
+    return nomeTipo;
+}

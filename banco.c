@@ -47,7 +47,7 @@ void imprimirBanco(Banco* banco) {
     for (i = 0; i < banco->numeroTabelas; i++) {
         tabela = banco->tabelas[i];
 
-        printf("----%s----\n", tabela->nome);
+        printf("---- %s ----\n", tabela->nome);
         printf("Campos: %d/%d\n", tabela->numeroCampos, tabela->limiteCampos);
         printf("Tuplas: %d/%d\n", tabela->numeroTuplas, tabela->limiteTuplas);
         printf("Blocos: %d/%d\n", tabela->numeroBlocos, tabela->limiteBlocos);
@@ -60,10 +60,7 @@ void imprimirBanco(Banco* banco) {
 
         for (j = 0; j < tabela->numeroCampos; j++) {
             campo = tabela->campos[j];
-            printf("\n");
-            printf("Campo: %s\n", campo->nome);
-            printf("Tipo: %d\n", campo->tipo);
-            printf("Bytes: %d\n", campo->bytes);
+            printf("[%s %s(%d)]\n", campo->nome, getTipo(campo->tipo), campo->bytes);
         }
 
         printf("\n");
