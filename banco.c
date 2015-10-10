@@ -41,17 +41,16 @@ void imprimirBanco(Banco* banco) {
     char* nome;
     int i, j, k;
 
-    printf("Número Tabelas: %d\n", banco->numeroTabelas);
-    printf("Limite Tabelas: %d\n", banco->limiteTabelas);
+    printf("Tabelas: %d/%d\n", banco->numeroTabelas, banco->limiteTabelas);
     printf("Nome Arquivo Banco: %s\n", banco->nomeArquivoBanco);
 
     for (i = 0; i < banco->numeroTabelas; i++) {
         tabela = banco->tabelas[i];
 
         printf("----%s----\n", tabela->nome);
-        printf("Número Campos: %d/%d\n", tabela->numeroCampos, tabela->limiteCampos);
-        printf("Número Tuplas: %d/%d\n", tabela->numeroTuplas, tabela->limiteTuplas);
-        printf("Número Blocos: %d/%d\n", tabela->numeroBlocos, tabela->limiteBlocos);
+        printf("Campos: %d/%d\n", tabela->numeroCampos, tabela->limiteCampos);
+        printf("Tuplas: %d/%d\n", tabela->numeroTuplas, tabela->limiteTuplas);
+        printf("Blocos: %d/%d\n", tabela->numeroBlocos, tabela->limiteBlocos);
 
         for (j = 0; j < tabela->numeroBlocos; j++) {
             nome = tabela->nomesArquivosBlocos[j];
@@ -73,8 +72,9 @@ void imprimirBanco(Banco* banco) {
             tupla = tabela->tuplas[j];
             for (k = 0; k < tabela->numeroCampos; k++) {
                 associacao = tupla->associacoes[k];
-                printf("Valor: %s\n", (char*) associacao->valor);
+                printf("%s: %s\n", associacao->campo->nome, (char*) associacao->valor);
             }
+            printf("\n");
         }
     }
 }

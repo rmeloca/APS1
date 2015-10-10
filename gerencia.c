@@ -158,54 +158,54 @@ void interpretarInsertInto(Banco* banco, char* nomeArquivo) {
         setTokenString(tokenReader, linha);
         token = nextToken(tokenReader); //INSERT
 
-        if (!strcasecmp(token, "INSERT")) {
-            token = nextToken(tokenReader); //INTO
-            token = nextToken(tokenReader);
-            tabela = getTabela(banco, token);
-            if (!tabela) {
-                return;
-            }
-            token = nextToken(tokenReader); //abre parêntesis
+        if (strcasecmp(token, "INSERT")) {
+            break;
         }
+
+        token = nextToken(tokenReader); //INTO
+        token = nextToken(tokenReader);
+        tabela = getTabela(banco, token);
+        if (!tabela) {
+            return;
+        }
+        token = nextToken(tokenReader); //abre parêntesis
 
         tupla = criarTupla(tabela);
         //não é preciso pedir memória para cada posição, uma vez que ela apenas apontará para uma região já alocada
         campos = (Campo**) calloc(tabela->numeroCampos, sizeof (Campo*));
         contadorCampos = 0;
-        while (hasMoreTokens(tokenReader)) {
-            //campos
-            while (1) {
-                token = nextToken(tokenReader); //campo
-                if (!strcasecmp(token, "VALUES")) {
-                    break;
-                }
-                campos[contadorCampos] = getCampo(tabela, token);
-                contadorCampos++;
-                token = nextToken(tokenReader); //comma
+        //campos
+        while (1) {
+            token = nextToken(tokenReader); //campo
+            if (!strcasecmp(token, "VALUES")) {
+                break;
             }
-
-            token = nextToken(tokenReader); //abre parêntesis
-            contadorCampos = 0;
-            //Para cada valor
-            while (1) {
-                token = nextToken(tokenReader); //campo
-                if (!strcmp(token, ";")) {
-                    break;
-                }
-
-                if (token[0] == '\'') {
-
-                }
-
-                associacao = findAssociacao(tabela, tupla, campos[contadorCampos]);
-                associarValor(associacao, (char*) token);
-                contadorCampos++;
-
-                token = nextToken(tokenReader); //comma
-            }
-            adicionarTupla(tabela, tupla);
-            free(campos);
+            campos[contadorCampos] = getCampo(tabela, token);
+            contadorCampos++;
+            token = nextToken(tokenReader); //comma
         }
+
+        token = nextToken(tokenReader); //abre parêntesis
+        contadorCampos = 0;
+        //Para cada valor
+        while (1) {
+            token = nextToken(tokenReader); //campo
+            if (!strcmp(token, ";")) {
+                break;
+            }
+
+            if (token[0] == '\'') {
+
+            }
+
+            associacao = findAssociacao(tabela, tupla, campos[contadorCampos]);
+            associarValor(associacao, (char*) token);
+            contadorCampos++;
+
+            token = nextToken(tokenReader); //comma
+        }
+        adicionarTupla(tabela, tupla);
+        free(campos);
     }
 }
 
