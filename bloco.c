@@ -176,8 +176,8 @@ int obterBloco(int tamanho, char** nomesArquivosBlocos, int numeroBlocos, char* 
 
 //olhar em todos os blocos
 //ler todos os registros
+//liberar as tuplas
 //populá-los nas tuplas
-//criar função que libera as tuplas
 void carregarRegistros(Tabela* tabela);
 
 int remover(Tabela* tabela, Campo* campo, char operador, void* valor);
