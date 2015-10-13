@@ -48,7 +48,7 @@ int main() {
 //                scanf("%s", caminhoArquivo);
 //                normalizarArquivo(caminhoArquivo);
                 normalizarArquivo("Arquivos/insert.sql");
-                interpretarInsertInto(banco, "Arquivos/insert.sql");
+                interpretarInsertInto(banco, "Arquivos/temp");
                 printf("Insert Processado %d tuplas inseridas\n", 0);
                 break;
             case 3:
