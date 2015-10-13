@@ -39,15 +39,18 @@ int calcTamanhoInserir(Tupla *tupla, int qtdAss) {
         associacao = tupla->associacoes[i];
 
         if (associacao->campo->tipo == INTEGER) {
-            tamanho += associacao->campo->bytes;
+            //            tamanho += associacao->campo->bytes;
+            tamanho += 4;
         } else if (associacao->campo->tipo == BOOLEAN) {
-            tamanho += associacao->campo->bytes;
+            //            tamanho += associacao->campo->bytes;
+            tamanho += 1;
         } else if (associacao->campo->tipo == CHAR) {
             tamanho += associacao->campo->bytes;
         } else {
             char* varchar = associacao->valor;
             if (varchar != NULL) {
                 tamanho += strlen(varchar);
+                tamanho += 4;
             }
         }
 
@@ -62,7 +65,6 @@ int calcTamanhoInserir(Tupla *tupla, int qtdAss) {
     return tamanho;
 }
 
-//o que você acha de receber só a tabela e eu chamar a função só pras tabelas que houveram inserts?
 int inserirRegistro(Banco* banco) {
     int i, j, k;
     //Percorrer todo banco para verirficar todas tuplas a ser inseridas
@@ -70,76 +72,79 @@ int inserirRegistro(Banco* banco) {
         Tabela *tabela = banco->tabelas[i];
         for (j = 0; tabela->numeroTuplas > j; j++) {
             Tupla *tupla = tabela->tuplas[j];
-
             //mapa de bits
             int* mapaBits;
             mapaBits = calloc(((tabela->numeroCampos / 8) + 1), sizeof (int));
 
             int tamanho = calcTamanhoInserir(tupla, tabela->numeroCampos);
-            int numeroDoBloco = obterBloco(tamanho, tabela->nomesArquivosBlocos, tabela->numeroBlocos, tabela->nome);
-            if (numeroDoBloco != tabela->numeroBlocos) {
-                tabela->numeroBlocos++;
-            }
+            if (!tamanho > 2040) {
 
-            int qtdRegistros, comecoRegistro, espacoLivre, novoEspacoLivre, qtdVar = -1, tamanhoVar, comecoVar = 0;
+                int numeroDoBloco = obterBloco(tamanho, tabela->nomesArquivosBlocos, tabela->numeroBlocos, tabela->nome);
 
-            FILE* file;
-            file = fopen(tabela->nomesArquivosBlocos[numeroDoBloco], "w+");
-            //Le no arq a qtd de registros no bloco
-            fread(&qtdRegistros, sizeof (short int), 1, file);
-            //Le a posicao do comeco do espaco livre
-            fseek(file, 4, SEEK_SET);
-            fread(&espacoLivre, sizeof (short int), 1, file);
-            fseek(file, 4, SEEK_SET);
-            //Escreve o novo espaco livre
-            novoEspacoLivre = (espacoLivre - tamanho) - 1;
-            fwrite(&novoEspacoLivre, sizeof (short int), 1, file);
-            //Escreve ponteiro para o comeco do novo registro
-            comecoRegistro = (espacoLivre - tamanho);
-            fseek(file, (6 + (qtdRegistros * 2)), SEEK_SET);
-            fwrite(&comecoRegistro, sizeof (short int), 1, file);
+                if (numeroDoBloco != tabela->numeroBlocos) {
+                    tabela->numeroBlocos++;
+                }
 
-            //Insere o registro
+                int qtdRegistros, comecoRegistro, espacoLivre, novoEspacoLivre, qtdVar = -1, tamanhoVar, comecoVar = 0;
 
-            for (k = 0; tabela->numeroCampos > k; k++) {
-                qtdVar++;
-                Associacao* associacao = tupla->associacoes[k];
-                Campo* campo = associacao->campo;
-                if (campo->tipo == VARCHAR) {
-                    tamanhoVar = 0;
-                    if (associacao->valor) {
-                        tamanho = strlen(associacao->valor);
+                FILE* file;
+                file = fopen(tabela->nomesArquivosBlocos[numeroDoBloco], "w+b");
+                //Le no arq a qtd de registros no bloco
+                fread(&qtdRegistros, sizeof (short int), 1, file);
+                //Le a posicao do comeco do espaco livre
+                fseek(file, 4, SEEK_SET);
+                fread(&espacoLivre, sizeof (short int), 1, file);
+                fseek(file, 4, SEEK_SET);
+                //Escreve o novo espaco livre
+                novoEspacoLivre = (espacoLivre - tamanho) - 1;
+                fwrite(&novoEspacoLivre, sizeof (short int), 1, file);
+                //Escreve ponteiro para o comeco do novo registro
+                comecoRegistro = (espacoLivre - tamanho);
+                fseek(file, (6 + (qtdRegistros * 2)), SEEK_SET);
+                fwrite(&comecoRegistro, sizeof (short int), 1, file);
+
+                //Insere o registro
+
+                for (k = 0; tabela->numeroCampos > k; k++) {
+                    qtdVar++;
+                    Associacao* associacao = tupla->associacoes[k];
+                    Campo* campo = associacao->campo;
+                    if (campo->tipo == VARCHAR) {
+                        tamanhoVar = 0;
+                        if (associacao->valor) {
+                            tamanho = strlen(associacao->valor);
+                        }
+                        if (comecoVar == 0) {
+                            comecoVar = (tamanho - tamanhoVar) + 1;
+                        } else {
+                            comecoVar -= tamanhoVar;
+                        }
+                        //insere ponteiro e tamanho do varchar
+                        comecoRegistro += qtdVar * 4;
+                        fseek(file, comecoRegistro, SEEK_SET);
+                        fwrite(&comecoVar, sizeof (short int), 1, file);
+                        fwrite(&tamanhoVar, sizeof (short int), 1, file);
+                        //inseri o varchar na posicao correta
+                        fseek(file, comecoVar, SEEK_SET);
+                        fwrite(&associacao->valor, tamanhoVar, 1, file);
+                        setMapaBits(k, mapaBits);
                     }
-                    if (comecoVar == 0) {
-                        comecoVar = (tamanho - tamanhoVar) + 1;
-                    } else {
-                        comecoVar -= tamanhoVar;
-                    }
-                    //insere ponteiro e tamanho do varchar
-                    comecoRegistro += qtdVar * 4;
+
+                }
+
+                for (k = 0; tabela->numeroCampos > k; k++) {
+                    Associacao* associacao = tupla->associacoes[k];
+                    Campo* campo = associacao->campo;
                     fseek(file, comecoRegistro, SEEK_SET);
-                    fwrite(&comecoVar, sizeof (short int), 1, file);
-                    fwrite(&tamanhoVar, sizeof (short int), 1, file);
-                    //inseri o varchar na posicao correta
-                    fseek(file, comecoVar, SEEK_SET);
-                    fwrite(&associacao->valor, tamanhoVar, 1, file);
+                    if ((campo->tipo) == INTEGER) {
+                        fwrite(&(associacao->valor), sizeof (int), 1, file);
+                    } else if ((campo->tipo) == CHAR) {
+                        fwrite(&(associacao->valor), sizeof (char), campo->bytes, file);
+                    } else if ((campo->tipo) == BOOLEAN) {
+                        fwrite(&(associacao->valor), sizeof (char), 1, file);
+                    }
                     setMapaBits(k, mapaBits);
                 }
-
-            }
-
-            for (k = 0; tabela->numeroCampos > k; k++) {
-                Associacao* associacao = tupla->associacoes[k];
-                Campo* campo = associacao->campo;
-                fseek(file, comecoRegistro, SEEK_SET);
-                if ((campo->tipo) == INTEGER) {
-                    fwrite(&(associacao->valor), sizeof (int), 1, file);
-                } else if ((campo->tipo) == CHAR) {
-                    fwrite(&(associacao->valor), sizeof (char), campo->bytes, file);
-                } else if ((campo->tipo) == BOOLEAN) {
-                    fwrite(&(associacao->valor), sizeof (char), 1, file);
-                }
-                setMapaBits(k, mapaBits);
             }
         }
     }
@@ -151,11 +156,10 @@ void setMapaBits(int posicao, int* mapaBits) {
 //Devolve o numero do bloco para insercao
 
 int obterBloco(int tamanho, char** nomesArquivosBlocos, int numeroBlocos, char* nomeTabela) {
-
     short int qtdRegistros, iniEspacoLivre, fimEspacoLivre;
-
+    numeroBlocos--;
     FILE *file;
-    file = fopen(nomesArquivosBlocos[numeroBlocos], "r+");
+    file = fopen(nomesArquivosBlocos[numeroBlocos], "r+b");
     fread(&qtdRegistros, sizeof (short int), 1, file);
 
     fseek(file, 4, SEEK_SET);
@@ -171,6 +175,7 @@ int obterBloco(int tamanho, char** nomesArquivosBlocos, int numeroBlocos, char* 
     sprintf(temp, "%d", numeroBlocos);
     char* nomeArq = nomeTabela;
     strcat(nomeArq, temp);
+
     gerarBloco(nomeArq);
     return numeroBlocos;
 }
@@ -179,9 +184,10 @@ int obterBloco(int tamanho, char** nomesArquivosBlocos, int numeroBlocos, char* 
 //ler todos os registros
 //liberar as tuplas
 //populá-los nas tuplas
-void carregarRegistros(Tabela* tabela){
+
+void carregarRegistros(Tabela* tabela) {
 }
 
-int remover(Tabela* tabela, Campo* campo, char operador, void* valor){
+int remover(Tabela* tabela, Campo* campo, char operador, void* valor) {
     return 0;
 }
