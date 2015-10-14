@@ -36,8 +36,8 @@ int main() {
         switch (option) {
             case 1:
                 printf("Informe o caminho do arquivo: ");
-//                scanf("%s", caminhoArquivo);
-//                normalizarArquivo(caminhoArquivo);
+                //                scanf("%s", caminhoArquivo);
+                //                normalizarArquivo(caminhoArquivo);
                 normalizarArquivo("Arquivos/create.sql");
                 interpretarCreateTable(banco, "Arquivos/temp");
                 persistirBanco(banco, banco->nomeArquivoBanco);
@@ -45,8 +45,8 @@ int main() {
                 break;
             case 2:
                 printf("Informe o caminho do arquivo: ");
-//                scanf("%s", caminhoArquivo);
-//                normalizarArquivo(caminhoArquivo);
+                //                scanf("%s", caminhoArquivo);
+                //                normalizarArquivo(caminhoArquivo);
                 normalizarArquivo("Arquivos/insert.sql");
                 interpretarInsertInto(banco, "Arquivos/temp");
                 printf("Insert Processado %d tuplas inseridas\n", 0);
@@ -54,9 +54,15 @@ int main() {
             case 3:
                 printf("SELECT * FROM ");
                 scanf("%s", caminhoArquivo);
+                carregarRegistros(caminhoArquivo);
+                //void imprimirTabela(Tabela* tabela);
+                imprimirBanco(banco);
                 break;
             case 4:
                 printf("Informe o nome do arquivo: ");
+                scanf("%s", caminhoArquivo);
+                //                normalizarArquivo(banco, caminhoArquivo);
+                //                interpretarDeleteFrom(banco, "Arquivos/temp");
                 break;
             case 5:
                 imprimirBanco(banco);

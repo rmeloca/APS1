@@ -265,4 +265,5 @@ void freeTuplas(Tabela* tabela) {
         }
         free(tupla);
     }
+    tabela->numeroTuplas = 0;
 }

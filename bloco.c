@@ -180,12 +180,82 @@ int obterBloco(int tamanho, char** nomesArquivosBlocos, int numeroBlocos, char* 
     return numeroBlocos;
 }
 
-//olhar em todos os blocos
-//ler todos os registros
-//liberar as tuplas
-//populá-los nas tuplas
-
 void carregarRegistros(Tabela* tabela) {
+    FILE* file;
+    Tupla* tupla;
+    Campo* campo;
+    Associacao* associacao;
+    void* valor;
+    char* nomeArquivoBloco;
+    int i, j;
+    short int numeroRegistros, deslocamentoRegistro, deslocamentoVarchar, tamanho;
+
+    //liberar as tuplas
+    freeTuplas(tabela);
+
+    if (tabela->numeroCampos > 8) {
+        //2kb mapa de bits
+    }
+
+    //olhar em todos os blocos
+    for (i = 0; i < tabela->numeroBlocos; i++) {
+        nomeArquivoBloco = tabela->nomesArquivosBlocos[i];
+        file = fopen(nomeArquivoBloco, "rb");
+
+        fread(&numeroRegistros, sizeof (numeroRegistros), 1, file);
+        fseek(file, 6, SEEK_SET);
+
+        //ler todos os registros
+        while (tabela->numeroTuplas < numeroRegistros) {
+            tupla = criarTupla(tabela);
+            //pula os primeiros bytes e aponta para o próximo registro
+            fseek(file, 6 + (tabela->numeroTuplas * 2), SEEK_SET);
+            fread(&deslocamentoRegistro, sizeof (deslocamentoRegistro), 1, file);
+            fseek(file, deslocamentoRegistro, SEEK_SET);
+
+            //para cada registro
+            //encontrar todos campos varchar
+            for (j = 0; j < tabela->numeroCampos; j++) {
+                associacao = tupla->associacoes[j];
+                campo = associacao->campo;
+                if (campo->tipo == VARCHAR) {
+                    fread(&deslocamentoVarchar, sizeof (deslocamentoVarchar), 1, file);
+                    fread(&tamanho, sizeof (tamanho), 1, file);
+                    fseek(file, deslocamentoVarchar, SEEK_CUR);
+
+                    valor = calloc(tamanho, sizeof (char));
+                    fread(valor, tamanho, 1, file);
+                    associarValor(associacao, valor);
+
+                    //mapa de bits?
+
+                    //aponta para próximo campo
+                    deslocamentoRegistro += 4;
+                    fseek(file, deslocamentoRegistro, SEEK_SET);
+                    free(valor);
+                }
+            }
+
+            for (j = 0; j < tabela->numeroCampos; j++) {
+                associacao = tupla->associacoes[j];
+                campo = associacao->campo;
+                if (campo->tipo != VARCHAR) {
+                    valor = malloc(campo->bytes);
+                    fread(valor, campo->bytes, 1, file);
+                    associarValor(associacao, valor);
+
+                    //aponta para próximo campo
+                    deslocamentoRegistro += campo->bytes;
+                    fseek(file, deslocamentoRegistro, SEEK_SET);
+                    free(valor);
+                }
+
+            }
+
+            //populá-los nas tuplas
+            adicionarTupla(tabela, tupla);
+        }
+    }
 }
 
 int remover(Tabela* tabela, Campo* campo, char operador, void* valor) {
