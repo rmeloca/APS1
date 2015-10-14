@@ -68,7 +68,7 @@ int calcTamanhoInserir(Tupla *tupla, int qtdAss) {
 int inserirRegistro(Banco* banco) {
     int i, j, k;
     //Percorrer todo banco para verirficar todas tuplas a ser inseridas
-    for (i = 0; banco->numeroTabelas > i; i++) {
+    for (i = 0; banco->numeroTabelas-1 > i; i++) {
         Tabela *tabela = banco->tabelas[i];
         for (j = 0; tabela->numeroTuplas > j; j++) {
             Tupla *tupla = tabela->tuplas[j];
@@ -77,7 +77,7 @@ int inserirRegistro(Banco* banco) {
             mapaBits = calloc(((tabela->numeroCampos / 8) + 1), sizeof (int));
 
             int tamanho = calcTamanhoInserir(tupla, tabela->numeroCampos);
-            if (!tamanho > 2040) {
+            if (!(tamanho > 2040)) {
 
                 int numeroDoBloco = obterBloco(tamanho, tabela->nomesArquivosBlocos, tabela->numeroBlocos, tabela->nome);
 
@@ -104,6 +104,7 @@ int inserirRegistro(Banco* banco) {
                 fwrite(&comecoRegistro, sizeof (short int), 1, file);
 
                 //Insere o registro
+                printf("\n\naqui\n\n");
 
                 for (k = 0; tabela->numeroCampos > k; k++) {
                     qtdVar++;
@@ -146,7 +147,9 @@ int inserirRegistro(Banco* banco) {
                     setMapaBits(k, mapaBits);
                 }
             }
+                        printf("\n\n1aqui\n\n");
         }
+                        printf("\n\n2aqui\n\n");
     }
 }
 
