@@ -20,7 +20,7 @@
 void gerarBloco(char* nomeArquivo) {
     FILE* file = fopen(nomeArquivo, "w");
     int i, n = 0;
-    for (i = 0; i < 500; i++) {
+    for (i = 0; i < 512; i++) {
         fwrite(&n, sizeof (int), 1, file);
     }
 
@@ -61,26 +61,31 @@ int calcTamanhoInserir(Tupla *tupla, int qtdAss) {
         tamanho++;
     }
     tamanho += qtdAss / 8;
-
+    printf("\ntamanho : %d\n",tamanho);
     return tamanho;
 }
 
 int inserirRegistro(Banco* banco) {
-    int i, j, k;
+    int i, j, k, l;
+    if(!banco){
+        return -1;
+    }
+     printf("------- \n num tab: %d\n",banco->numeroTabelas); 
+     printf("------- \n num tup: %d\n",banco->tabelas[0]->numeroTuplas); 
+     printf("------- \n num tup: %d\n",banco->tabelas[1]->numeroTuplas); 
     //Percorrer todo banco para verirficar todas tuplas a ser inseridas
-    for (i = 0; banco->numeroTabelas-1 > i; i++) {
+    for (i = 0; banco->numeroTabelas -1 > i; i++) {
         Tabela *tabela = banco->tabelas[i];
-        for (j = 0; tabela->numeroTuplas > j; j++) {
+        for (j = 0; tabela->numeroTuplas - 1 > j; j++) {
+            printf("AEEEEE");
             Tupla *tupla = tabela->tuplas[j];
             //mapa de bits
             int* mapaBits;
             mapaBits = calloc(((tabela->numeroCampos / 8) + 1), sizeof (int));
-
             int tamanho = calcTamanhoInserir(tupla, tabela->numeroCampos);
-            if (!(tamanho > 2040)) {
+            if ((tamanho < 2040)) {
 
                 int numeroDoBloco = obterBloco(tamanho, tabela->nomesArquivosBlocos, tabela->numeroBlocos, tabela->nome);
-
                 if (numeroDoBloco != tabela->numeroBlocos) {
                     tabela->numeroBlocos++;
                 }
@@ -104,9 +109,8 @@ int inserirRegistro(Banco* banco) {
                 fwrite(&comecoRegistro, sizeof (short int), 1, file);
 
                 //Insere o registro
-                printf("\n\naqui\n\n");
 
-                for (k = 0; tabela->numeroCampos > k; k++) {
+                for (k = 0; tabela->numeroCampos-1 > k; k++) {
                     qtdVar++;
                     Associacao* associacao = tupla->associacoes[k];
                     Campo* campo = associacao->campo;
@@ -120,6 +124,7 @@ int inserirRegistro(Banco* banco) {
                         } else {
                             comecoVar -= tamanhoVar;
                         }
+                        printf("\n\n Tamanho do var: %d. \n Comeco do Var: %d\n ", tamanho, comecoVar);
                         //insere ponteiro e tamanho do varchar
                         comecoRegistro += qtdVar * 4;
                         fseek(file, comecoRegistro, SEEK_SET);
@@ -133,28 +138,43 @@ int inserirRegistro(Banco* banco) {
 
                 }
 
-                for (k = 0; tabela->numeroCampos > k; k++) {
-                    Associacao* associacao = tupla->associacoes[k];
+                for (l = 0; tabela->numeroCampos-1 > l; l++) {
+                    Associacao* associacao = tupla->associacoes[l];
                     Campo* campo = associacao->campo;
                     fseek(file, comecoRegistro, SEEK_SET);
-                    if ((campo->tipo) == INTEGER) {
-                        fwrite(&(associacao->valor), sizeof (int), 1, file);
-                    } else if ((campo->tipo) == CHAR) {
-                        fwrite(&(associacao->valor), sizeof (char), campo->bytes, file);
-                    } else if ((campo->tipo) == BOOLEAN) {
-                        fwrite(&(associacao->valor), sizeof (char), 1, file);
+                    if (associacao->valor && ((campo->tipo)!= VARCHAR)) {
+                        if ((campo->tipo) == INTEGER) {
+                            fwrite(&(associacao->valor), sizeof (int), 1, file);
+                        } else if ((campo->tipo) == CHAR) {
+                            fwrite(&(associacao->valor), sizeof (char), campo->bytes, file);
+                        } else if ((campo->tipo) == BOOLEAN) {
+                            fwrite(&(associacao->valor), sizeof (char), 1, file);
+                        }
+                    setMapaBits(l, mapaBits);
                     }
-                    setMapaBits(k, mapaBits);
                 }
+                fclose(file);
             }
-                        printf("\n\n1aqui\n\n");
+            printf("\n\nmapa: %d\n\n", mapaBits[0]);
+            free(mapaBits);
+            free(tupla);
         }
-                        printf("\n\n2aqui\n\n");
+        free(tabela);
+     printf("\n\Fim loop1\n\n");
     }
+     printf("\n\FIM\n\n");
 }
 
 void setMapaBits(int posicao, int* mapaBits) {
-    mapaBits[(posicao + 1) / 8] = pow(2, (posicao % 8));
+    int i, bit = 2;
+    if ((posicao % 8) == 0) {
+        mapaBits[(posicao / 8)] += 1;
+    } else {
+        for (i = 1; i < (posicao % 8); i++) {
+            bit *= bit;
+        }
+        mapaBits[(posicao / 8)] += bit;
+    }
 }
 //Devolve o numero do bloco para insercao
 
@@ -259,6 +279,7 @@ void carregarRegistros(Tabela* tabela) {
             adicionarTupla(tabela, tupla);
         }
     }
+    //fclose(file);
 }
 
 int remover(Tabela* tabela, Campo* campo, char operador, void* valor) {
