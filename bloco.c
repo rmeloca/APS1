@@ -72,7 +72,7 @@ int inserirRegistro(Banco* banco) {
     //Percorrer todo banco para verirficar todas tuplas a ser inseridas
     //----
     //Percorre todas as tabelas
-    for (i = 0; banco->numeroTabelas > i; i++) {                }
+    for (i = 0; banco->numeroTabelas > i; i++) {                
 
         Tabela *tabela = banco->tabelas[i];
         //Percorre todas as tuplas de cada tabela   
