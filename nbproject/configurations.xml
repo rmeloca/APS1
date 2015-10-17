@@ -6,14 +6,12 @@
         <in>banco.h</in>
         <in>campo.h</in>
         <in>gerencia.h</in>
-        <in>inserir.h</in>
         <in>tabela.h</in>
       </df>
       <in>banco.c</in>
       <in>campo.c</in>
       <in>casamentoDelimitadores.c</in>
       <in>gerencia.c</in>
-      <in>inserir.c</in>
       <in>main.c</in>
       <in>stack.c</in>
       <in>tabela.c</in>
@@ -54,8 +52,6 @@
       </item>
       <item path="Headers/gerencia.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="Headers/inserir.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="Headers/tabela.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="banco.c" ex="false" tool="0" flavor2="0">
@@ -65,8 +61,6 @@
       <item path="casamentoDelimitadores.c" ex="false" tool="0" flavor2="2">
       </item>
       <item path="gerencia.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="inserir.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="main.c" ex="false" tool="0" flavor2="2">
       </item>

@@ -204,8 +204,8 @@ void interpretarInsertInto(Banco* banco, char* nomeArquivo) {
         adicionarTupla(tabela, tupla);
         free(campos);
     }
+    inserirRegistros(tabela);
     fclose(file);
-    inserirRegistro(banco);
 }
 
 void interpretarDeleteFrom(Banco* banco, char* caminhoArquivo) {
@@ -246,24 +246,4 @@ void interpretarDeleteFrom(Banco* banco, char* caminhoArquivo) {
     }
     free(valor);
     fclose(file);
-}
-
-void freeTuplas(Tabela* tabela) {
-    int i;
-    int j;
-    Tupla* tupla;
-    Associacao* associacao;
-    //cada tupla
-    for (i = 0; i < tabela->numeroTuplas; i++) {
-        tupla = tabela->tuplas[i];
-        //cada associacao
-        for (j = 0; j < tabela->numeroCampos; j++) {
-            associacao = tupla->associacoes[i];
-            //observa-se que não libera-se o espaço dos campos
-            free(associacao->valor);
-            free(associacao);
-        }
-        free(tupla);
-    }
-    tabela->numeroTuplas = 0;
 }

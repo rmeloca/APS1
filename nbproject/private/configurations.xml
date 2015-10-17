@@ -6,18 +6,18 @@
       </df>
       <df name="Headers">
         <in>banco.h</in>
+        <in>bloco.h</in>
         <in>campo.h</in>
         <in>gerencia.h</in>
-        <in>inserir.h</in>
         <in>stack.h</in>
         <in>tabela.h</in>
         <in>token.h</in>
       </df>
       <in>banco.c</in>
+      <in>bloco.c</in>
       <in>campo.c</in>
       <in>casamentoDelimitadores.c</in>
       <in>gerencia.c</in>
-      <in>inserir.c</in>
       <in>main.c</in>
       <in>stack.c</in>
       <in>tabela.c</in>
@@ -29,7 +29,7 @@
     <conf name="Default" type="0">
       <toolsSet>
         <developmentServer>localhost</developmentServer>
-        <platform>2</platform>
+        <platform>4</platform>
       </toolsSet>
       <compile>
         <compiledirpicklist>

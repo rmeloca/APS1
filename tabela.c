@@ -100,6 +100,7 @@ Associacao* findAssociacao(Tabela* tabela, Tupla* tupla, Campo* campo) {
             return associacao;
         }
     }
+    return associacao;
 }
 
 void associarValor(Associacao* associacao, void* valor) {
@@ -114,4 +115,24 @@ void associarValor(Associacao* associacao, void* valor) {
     }
     associacao->valor = malloc(tamanho);
     associacao->valor = valor;
+}
+
+void freeTuplas(Tabela* tabela) {
+    int i;
+    int j;
+    Tupla* tupla;
+    Associacao* associacao;
+    //cada tupla
+    for (i = 0; i < tabela->numeroTuplas; i++) {
+        tupla = tabela->tuplas[i];
+        //cada associacao
+        for (j = 0; j < tabela->numeroCampos; j++) {
+            associacao = tupla->associacoes[i];
+            //observa-se que não libera-se o espaço dos campos
+            free(associacao->valor);
+            free(associacao);
+        }
+        free(tupla);
+    }
+    tabela->numeroTuplas = 0;
 }
