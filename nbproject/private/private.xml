@@ -10,13 +10,10 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/data/documents/NetBeansProjects/APS1/main.c</file>
-            <file>file:/data/documents/NetBeansProjects/APS1/tabela.c</file>
-            <file>file:/data/documents/NetBeansProjects/APS1/Arquivos/create.sql</file>
-            <file>file:/data/documents/NetBeansProjects/APS1/gerencia.c</file>
-            <file>file:/data/documents/NetBeansProjects/APS1/Headers/campo.h</file>
-            <file>file:/data/documents/NetBeansProjects/APS1/Arquivos/insert.sql</file>
-            <file>file:/data/documents/NetBeansProjects/APS1/Headers/tabela.h</file>
+            <file>file:/Users/leonardo/NetBeansProjects/APS1/Headers/bloco.h</file>
+            <file>file:/Users/leonardo/NetBeansProjects/APS1/bloco.c</file>
+            <file>file:/Users/leonardo/NetBeansProjects/APS1/gerencia.c</file>
+            <file>file:/Users/leonardo/NetBeansProjects/APS1/main.c</file>
         </group>
     </open-files>
 </project-private>

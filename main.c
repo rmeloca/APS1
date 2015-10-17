@@ -54,8 +54,8 @@ int main() {
             case 3:
                 printf("SELECT * FROM ");
                 scanf("%s", caminhoArquivo);
-                carregarRegistros(caminhoArquivo);
-                //void imprimirTabela(Tabela* tabela);
+                carregarRegistros(getTabela(banco, caminhoArquivo));
+                //void imprimirTabela(Tabela* tabela);s
                 imprimirBanco(banco);
                 break;
             case 4:

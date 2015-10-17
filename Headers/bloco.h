@@ -9,7 +9,7 @@
 
 void gerarBloco(char* nomeArquivo);
 int calcTamanhoInserir(Tupla *tupla, int qtdAss);
-int inserirRegistro(Banco* banco);
+int inserirRegistros(Tabela* tabela);
 int obterBloco(int tamanho, char** nomesArquivosBlocos, int numeroBlocos, char* nomeTabela);
 void setMapaBits(int posicao, int* mapaBits);
 void carregarRegistros(Tabela* tabela);
