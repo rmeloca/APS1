@@ -28,8 +28,7 @@ Banco* carregarBanco(char* caminhoArquivoBanco) {
     if (!file) {
         return NULL;
     }
-//    banco = criarBanco(caminhoArquivoBanco);
-    banco = (Banco*) malloc(sizeof(Banco));
+    banco = criarBanco(caminhoArquivoBanco);
     fread(banco, sizeof (Banco), 1, file);
     fclose(file);
     return banco;
