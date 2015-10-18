@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "Headers/gerencia.h"
+#include <sys/dir.h>
 
 Banco* banco;
 
@@ -33,6 +34,7 @@ int main() {
      */
 
     if (!banco) {
+        mkdir("Arquivos");
         banco = criarBanco("Arquivos/Banco.MRdb");
     }
     caminhoArquivo = (char*) calloc(1000, sizeof (char));
@@ -52,34 +54,39 @@ int main() {
             case 1:
                 printf("Informe o caminho do arquivo: ");
                 scanf("%s", caminhoArquivo);
-                if (normalizarArquivo(caminhoArquivo)) {
-                    interpretarCreateTable(banco, "Arquivos/temp");
-                    persistirBanco(banco, banco->nomeArquivoBanco);
-                    printf("Tabelas criadas com sucesso\n");
+                if (!normalizarArquivo(caminhoArquivo)) {
+                    break;
                 }
+                interpretarCreateTable(banco, "Arquivos/temp");
+                persistirBanco(banco, banco->nomeArquivoBanco);
+                printf("Tabelas criadas com sucesso\n");
                 break;
             case 2:
                 printf("Informe o caminho do arquivo: ");
                 scanf("%s", caminhoArquivo);
-                if (normalizarArquivo(caminhoArquivo)) {
-                    tuplasInseridas = interpretarInsertInto(banco, "Arquivos/temp");
-                    printf("Insert Processado %d tuplas inseridas\n", tuplasInseridas);
+                if (!normalizarArquivo(caminhoArquivo)) {
+                    break;
                 }
+                tuplasInseridas = interpretarInsertInto(banco, "Arquivos/temp");
+                printf("Insert Processado %d tuplas inseridas\n", tuplasInseridas);
                 break;
             case 3:
                 printf("SELECT * FROM ");
                 scanf("%s", nomeTabela);
                 tabela = getTabela(banco, nomeTabela);
+                if (!tabela) {
+                    break;
+                }
                 carregarRegistros(tabela);
                 imprimirTabela(tabela);
-                imprimirBanco(banco);
                 break;
             case 4:
                 printf("Informe o nome do arquivo: ");
                 scanf("%s", caminhoArquivo);
-                if (normalizarArquivo(caminhoArquivo)) {
-                    interpretarDeleteFrom(banco, "Arquivos/temp");
+                if (!normalizarArquivo(caminhoArquivo)) {
+                    break;
                 }
+                interpretarDeleteFrom(banco, "Arquivos/temp");
                 break;
             case 5:
                 imprimirBanco(banco);

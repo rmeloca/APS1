@@ -241,9 +241,7 @@ void carregarRegistros(Tabela* tabela) {
     //liberar as tuplas
     freeTuplas(tabela);
 
-    if (tabela->numeroCampos > 8) {
-        //2kb mapa de bits
-    }
+    //mapaBits=tabela->numeroCampos/8+1
 
     //olhar em todos os blocos
     for (i = 0; i < tabela->numeroBlocos; i++) {
@@ -275,7 +273,6 @@ void carregarRegistros(Tabela* tabela) {
                     fread(valor, tamanho, 1, file);
                     associarValor(associacao, valor);
 
-                    //mapa de bits?
 
                     //aponta para próximo campo
                     deslocamentoRegistro += 4;
@@ -301,6 +298,8 @@ void carregarRegistros(Tabela* tabela) {
 
             }
 
+            //ler mapa de bits e anular os dados na estrutura
+
             //populá-los nas tuplas
             adicionarTupla(tabela, tupla);
         }
@@ -309,5 +308,60 @@ void carregarRegistros(Tabela* tabela) {
 }
 
 int remover(Tabela* tabela, Campo* campo, char operador, void* valor) {
-    return 0;
+    FILE* file;
+    Associacao* associacao;
+    char* nomeArquivoBloco;
+    int tuplasDeletadas;
+    int i, j, k;
+    short int numeroRegistros, deslocamento;
+
+    //para todos os blocos
+    tuplasDeletadas = 0;
+    for (i = 0; i < tabela->numeroBlocos; i++) {
+        nomeArquivoBloco = tabela->nomesArquivosBlocos[i];
+        file = fopen(nomeArquivoBloco, "rb");
+        fread(&numeroRegistros, sizeof (numeroRegistros), 1, file);
+        fseek(file, 6, SEEK_SET);
+
+        //para cada registro
+        for (j = 0; j < numeroRegistros; j++) {
+            fseek(file, 6 + (j * 2), SEEK_SET);
+            fread(&deslocamento, sizeof (deslocamento), 1, file);
+            fseek(file, deslocamento, SEEK_SET);
+
+            //para cada campo
+
+            //todos varchar
+            for (k = 0; k < tabela->numeroCampos; k++) {
+                //se varchar:
+                //le deslocamento
+                //le tamanho
+                //pede memória pra void*
+                //compara
+                //int comparaValor(void* valor1, char operador, void* valor2, Tipo* tipo);
+                if (operador == '=') {
+                    if (associacao->valor == valor) {
+                    }
+                }
+                //remove item do cabeçalho e incrementa removidos
+                tuplasDeletadas++;
+                //libera void*
+            }
+            for (k = 0; k < tabela->numeroCampos; k++) {
+                //se não varchar
+                //le valor
+                //compara
+                //int comparaValor(void* valor1, char operador, void* valor2, Tipo* tipo);
+                if (operador == '=') {
+                    if (associacao->valor == valor) {
+                    }
+                }
+                //remove item do cabeçalho e incrementa removidos
+                tuplasDeletadas++;
+                //libera void*
+            }
+        }
+        fclose(file);
+    }
+    return tuplasDeletadas;
 }
