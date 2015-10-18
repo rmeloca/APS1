@@ -136,3 +136,16 @@ void freeTuplas(Tabela* tabela) {
     }
     tabela->numeroTuplas = 0;
 }
+
+void freeTupla(Tabela* tabela, Tupla* tupla) {
+    Associacao* associacao;
+    int i;
+    for (i = 0; i < tabela->numeroCampos; i++) {
+        associacao = tupla->associacoes[i];
+        //observa-se que não libera-se o espaço dos campos
+        free(associacao->valor);
+        free(associacao);
+    }
+    free(tupla);
+    tabela->numeroTuplas--;
+}
