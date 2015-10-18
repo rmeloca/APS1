@@ -16,13 +16,28 @@ Banco* banco;
 
 int main() {
     char* caminhoArquivo;
+    char* nomeTabela;
+    Tabela* tabela;
+    int option;
+    int tuplasInseridas;
 
-    //    banco = carregarBanco("Arquivos/Banco.MRdb");
-    if (banco == NULL) {
+    /*
+     * Em c, é preciso alocar memória para todos os atributos variáveis.
+     * Em 17/10 descobri que isso também é uma necessidade para fread,
+     * de modo que não é possível ler um arquivo binário apenas com fread
+     * sem saber o tamanho de cada atributo da estrutura.
+     * Em outras linguagens a serialização de objetos lida automaticamente
+     * com tais questões de memória
+     * :(
+     * banco = carregarBanco("Arquivos/Banco.MRdb");
+     */
+
+    if (!banco) {
         banco = criarBanco("Arquivos/Banco.MRdb");
     }
+    caminhoArquivo = (char*) calloc(1000, sizeof (char));
+    nomeTabela = (char*) calloc(1000, sizeof (char));
 
-    int option;
     do {
         printf("1: Criar tabelas\t"
                 "2: Inserir registros\t"
@@ -36,33 +51,35 @@ int main() {
         switch (option) {
             case 1:
                 printf("Informe o caminho do arquivo: ");
-                //                scanf("%s", caminhoArquivo);
-                //                normalizarArquivo(caminhoArquivo);
-                normalizarArquivo("Arquivos/create.sql");
-                interpretarCreateTable(banco, "Arquivos/temp");
-                persistirBanco(banco, banco->nomeArquivoBanco);
-                printf("Tabelas criadas com sucesso\n");
+                scanf("%s", caminhoArquivo);
+                if (normalizarArquivo(caminhoArquivo)) {
+                    interpretarCreateTable(banco, "Arquivos/temp");
+                    persistirBanco(banco, banco->nomeArquivoBanco);
+                    printf("Tabelas criadas com sucesso\n");
+                }
                 break;
             case 2:
                 printf("Informe o caminho do arquivo: ");
-                //                scanf("%s", caminhoArquivo);
-                //                normalizarArquivo(caminhoArquivo);
-                normalizarArquivo("Arquivos/insert.sql");
-                interpretarInsertInto(banco, "Arquivos/temp");
-                printf("Insert Processado %d tuplas inseridas\n", 0);
+                scanf("%s", caminhoArquivo);
+                if (normalizarArquivo(caminhoArquivo)) {
+                    tuplasInseridas = interpretarInsertInto(banco, "Arquivos/temp");
+                    printf("Insert Processado %d tuplas inseridas\n", tuplasInseridas);
+                }
                 break;
             case 3:
                 printf("SELECT * FROM ");
-                scanf("%s", caminhoArquivo);
-                carregarRegistros(getTabela(banco, caminhoArquivo));
-                //void imprimirTabela(Tabela* tabela);s
+                scanf("%s", nomeTabela);
+                tabela = getTabela(banco, nomeTabela);
+                carregarRegistros(tabela);
+                imprimirTabela(tabela);
                 imprimirBanco(banco);
                 break;
             case 4:
                 printf("Informe o nome do arquivo: ");
                 scanf("%s", caminhoArquivo);
-                //                normalizarArquivo(banco, caminhoArquivo);
-                //                interpretarDeleteFrom(banco, "Arquivos/temp");
+                if (normalizarArquivo(caminhoArquivo)) {
+                    interpretarDeleteFrom(banco, "Arquivos/temp");
+                }
                 break;
             case 5:
                 imprimirBanco(banco);

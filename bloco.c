@@ -49,7 +49,7 @@ int obterBloco(Tabela* tabela, int tamanhoRegistro) {
     char* nomeArquivo = (char*) calloc(100, sizeof (char));
 
     //criar bloco para cada tabela
-    sprintf(temp, "_%d", tabela->numeroBlocos + 1);
+    sprintf(temp, "_%d", tabela->numeroBlocos);
     strcpy(nomeArquivo, "Arquivos/");
     strcat(nomeArquivo, tabela->nome);
     strcat(nomeArquivo, temp);
@@ -58,7 +58,7 @@ int obterBloco(Tabela* tabela, int tamanhoRegistro) {
     gerarBloco(nomeArquivo);
     adicionarBloco(tabela, nomeArquivo);
 
-    return tabela->numeroBlocos;
+    return tabela->numeroBlocos - 1;
 }
 
 int getTamanhoRegistro(Tupla *tupla, int qtdAssociacoes) {
@@ -136,6 +136,7 @@ int inserirRegistros(Tabela* tabela) {
 
         //Descobre qual bloco deve inserir o registro
         numeroDoBloco = obterBloco(tabela, tamanhoRegistro);
+        printf("numeroBloco: %d\n", numeroDoBloco);
         file = fopen(tabela->nomesArquivosBlocos[numeroDoBloco], "w+b");
 
         //mapa de bits
@@ -160,8 +161,6 @@ int inserirRegistros(Tabela* tabela) {
         comecoRegistro = (espacoLivre - tamanhoRegistro);
         fseek(file, (6 + (qtdRegistros * 2)), SEEK_SET);
         fwrite(&comecoRegistro, sizeof (short int), 1, file);
-
-        printf("numeroBloco: %d\n", numeroDoBloco);
 
         /*
          * Inserir apontadores varchar
@@ -285,6 +284,7 @@ void carregarRegistros(Tabela* tabela) {
                 }
             }
 
+            //restante dos arquivos
             for (j = 0; j < tabela->numeroCampos; j++) {
                 associacao = tupla->associacoes[j];
                 campo = associacao->campo;

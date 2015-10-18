@@ -117,6 +117,10 @@ void associarValor(Associacao* associacao, void* valor) {
     associacao->valor = valor;
 }
 
+void imprimirTabela(Tabela* tabela) {
+    printf("%s\n", tabela->nome);
+}
+
 void freeTuplas(Tabela* tabela) {
     int i;
     int j;

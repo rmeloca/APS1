@@ -10,7 +10,7 @@
 
 int persistirBanco(Banco * banco, char* caminhoArquivoBanco);
 Banco* carregarBanco(char* caminhoArquivoBanco);
-void normalizarArquivo(char* caminhoArquivo);
+int normalizarArquivo(char* caminhoArquivo);
 void interpretarCreateTable(Banco* banco, char* caminhoArquivo);
-void interpretarInsertInto(Banco* banco, char* caminhoArquivo);
+int interpretarInsertInto(Banco* banco, char* caminhoArquivo);
 void interpretarDeleteFrom(Banco* banco, char* caminhoArquivo);

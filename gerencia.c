@@ -23,17 +23,19 @@ int persistirBanco(Banco* banco, char* caminhoArquivoBanco) {
 
 Banco* carregarBanco(char* caminhoArquivoBanco) {
     FILE* file;
+    Banco* banco;
     file = fopen(caminhoArquivoBanco, "rb");
-    if (file == NULL) {
+    if (!file) {
         return NULL;
     }
-    Banco* banco;
+//    banco = criarBanco(caminhoArquivoBanco);
+    banco = (Banco*) malloc(sizeof(Banco));
     fread(banco, sizeof (Banco), 1, file);
     fclose(file);
     return banco;
 }
 
-void normalizarArquivo(char* caminhoArquivo) {
+int normalizarArquivo(char* caminhoArquivo) {
     FILE* file;
     FILE* temp;
     TokenReader* tokenReader;
@@ -41,6 +43,11 @@ void normalizarArquivo(char* caminhoArquivo) {
     char* token;
 
     file = fopen(caminhoArquivo, "r");
+
+    if (!file) {
+        return 0;
+    }
+
     temp = fopen("Arquivos/temp", "w");
     linha = (char*) calloc(1000, sizeof (char));
     tokenReader = newTokenReader(linha);
@@ -60,6 +67,7 @@ void normalizarArquivo(char* caminhoArquivo) {
     }
     fclose(file);
     fclose(temp);
+    return 1;
 }
 
 void interpretarCreateTable(Banco* banco, char* caminhoArquivo) {
@@ -134,12 +142,13 @@ void interpretarCreateTable(Banco* banco, char* caminhoArquivo) {
     fclose(file);
 }
 
-void interpretarInsertInto(Banco* banco, char* nomeArquivo) {
+int interpretarInsertInto(Banco* banco, char* nomeArquivo) {
     FILE* file;
     TokenReader* tokenReader;
     Tabela* tabela;
     Campo** campos;
     int contadorCampos;
+    int registrosInseridos;
     Tupla* tupla;
     Associacao* associacao;
     char* linha;
@@ -149,6 +158,7 @@ void interpretarInsertInto(Banco* banco, char* nomeArquivo) {
     linha = (char*) calloc(1000, sizeof (char));
 
     //Para cada INSERT
+    registrosInseridos = 0;
     tokenReader = newTokenReader(linha);
     while (fgets(linha, 1000, file) != NULL) {
         setTokenString(tokenReader, linha);
@@ -203,9 +213,10 @@ void interpretarInsertInto(Banco* banco, char* nomeArquivo) {
         }
         adicionarTupla(tabela, tupla);
         free(campos);
+        registrosInseridos += inserirRegistros(tabela);
     }
-    inserirRegistros(tabela);
     fclose(file);
+    return registrosInseridos;
 }
 
 void interpretarDeleteFrom(Banco* banco, char* caminhoArquivo) {

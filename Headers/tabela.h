@@ -46,5 +46,6 @@ void adicionarTupla(Tabela* tabela, Tupla* tupla);
 Associacao* criarAssociacao(Campo* campo);
 Associacao* findAssociacao(Tabela* tabela, Tupla* tupla, Campo* campo);
 void associarValor(Associacao* associacao, void* valor);
+void imprimirTabela(Tabela* tabela);
 void freeTuplas(Tabela* tabela);
 void freeTupla(Tabela* tabela, Tupla* tupla);
