@@ -137,12 +137,12 @@ int inserirRegistros(Tabela* tabela) {
         //Descobre qual bloco deve inserir o registro
         numeroDoBloco = obterBloco(tabela, tamanhoRegistro);
         printf("numeroBloco: %d\n", numeroDoBloco);
-        file = fopen(tabela->nomesArquivosBlocos[numeroDoBloco], "w+b");
+        file = fopen(tabela->nomesArquivosBlocos[numeroDoBloco], "r+");
 
         //Atualiza o cabeçalho do arquivo
         //Le no arq a qtd de registros no bloco
         fread(&qtdRegistros, sizeof (qtdRegistros), 1, file);
-        printf("qtdRegistros: %d\n", qtdRegistros);
+
 
         //Le a posicao do comeco do espaco livre
         fseek(file, 4, SEEK_SET);
@@ -150,10 +150,13 @@ int inserirRegistros(Tabela* tabela) {
 
         //Escreve o novo espaco livre
         fseek(file, 4, SEEK_SET);
-        espacoLivre -= tamanhoRegistro - 1;
+        printf("\nEspa livre: %d\n", espacoLivre);
+        espacoLivre -= tamanhoRegistro;
+        espacoLivre--;
         fwrite(&espacoLivre, sizeof (espacoLivre), 1, file);
 
         //Escreve ponteiro para o comeco do novo registro
+        printf("\nEspa livre: %d\n", espacoLivre);
         comecoRegistro = espacoLivre + 1;
         fseek(file, 6 + (qtdRegistros * 2), SEEK_SET);
         fwrite(&comecoRegistro, sizeof (comecoRegistro), 1, file);
@@ -171,64 +174,79 @@ int inserirRegistros(Tabela* tabela) {
          * Inserir mapa de bits
          */
 
+        //mapa de bits
+        mapaBits = (int*) calloc((tabela->numeroCampos / 8) + 1, sizeof (int));
+
         qtdVarchar = -1;
         comecoVar = 0;
         //Insere todos VARCHARs
-        for (j = 0; j < tabela->numeroCampos - 1; j++) {
+        for (j = 0; j < tabela->numeroCampos; j++) {
             associacao = tupla->associacoes[j];
             campo = associacao->campo;
 
-            qtdVarchar++;
 
             if (campo->tipo == VARCHAR) {
+                qtdVarchar++;
                 tamanhoVar = 0;
                 if (associacao->valor) {
-                    tamanhoRegistro = strlen(associacao->valor);
+                    tamanhoVar = strlen(associacao->valor);
                 }
                 if (comecoVar == 0) {
-                    comecoVar = (tamanhoRegistro - tamanhoVar) + 1;
+                    comecoVar = (tamanhoRegistro - tamanhoVar);
                 } else {
                     comecoVar -= tamanhoVar;
                 }
 
-                printf("Tamanho do var: %d\n", tamanhoRegistro);
                 printf("Comeco do Var: %d\n", comecoVar);
+                printf("Tamanho do Reg: %d\n", tamanhoRegistro);
+                printf("tamanho var: %d\n", tamanhoVar);
+                printf("comecoRegistros: %d\n", comecoRegistro);
 
                 //insere ponteiro e tamanho do varchar
-                comecoRegistro += qtdVarchar * 4;
                 fseek(file, comecoRegistro, SEEK_SET);
-                fwrite(&comecoVar, sizeof (comecoVar), 1, file);
-                fwrite(&tamanhoVar, sizeof (tamanhoVar), 1, file);
+                fwrite(&comecoVar, sizeof (short int), 1, file);
+                fwrite(&tamanhoVar, sizeof (short int), 1, file);
                 //inseri o varchar na posicao correta
                 fseek(file, comecoVar, SEEK_SET);
                 fwrite(associacao->valor, tamanhoVar, 1, file);
                 //        printf("debug\n");
-                //                setMapaBits(mapaBits, j);
+                setMapaBits(mapaBits, j);
+                comecoRegistro += 4;
             }
         }
 
-        //mapa de bits
-        mapaBits = (int*) calloc((tabela->numeroCampos / 8) + 1, sizeof (int));
 
         //Insere o restante dos registros
-        for (j = 0; j < tabela->numeroCampos - 1; j++) {
+        for (j = 0; j < tabela->numeroCampos; j++) {
+            printf("1comecoRegistros: %d\n", comecoRegistro);
             associacao = tupla->associacoes[j];
             campo = associacao->campo;
 
-            fseek(file, comecoRegistro, SEEK_SET);
             if (associacao->valor && (campo->tipo != VARCHAR)) {
+                fseek(file, comecoRegistro, SEEK_SET);
                 if (campo->tipo == INTEGER) {
                     fwrite(associacao->valor, sizeof (int), 1, file);
+                    comecoRegistro += 4;
                 } else if (campo->tipo == CHAR) {
                     fwrite(associacao->valor, sizeof (char), campo->bytes, file);
+                    comecoRegistro += campo->bytes;
                 } else if (campo->tipo == BOOLEAN) {
                     fwrite(associacao->valor, sizeof (char), 1, file);
+                    comecoRegistro += campo->bytes;
                 }
-//                setMapaBits(mapaBits, j);
+                setMapaBits(mapaBits, j);
             }
+            printf("2comecoRegistros: %d\n", comecoRegistro);
         }
-        //inserir mapabits
-
+//        inserir mapabits
+//        int la = 0;
+//        int ka = tabela->numeroCampos / 8;
+//        if ((tabela->numeroCampos % 8) != 0) {
+//            ka++;
+//        }
+//        for (; la < ka; la++) {
+//            fwrite(mapaBits[la], sizeof (int), 1, file);
+//        }
         quantidadeInsercoes++;
 
         free(mapaBits);
