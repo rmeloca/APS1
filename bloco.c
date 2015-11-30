@@ -91,16 +91,19 @@ int getTamanhoRegistro(Tupla *tupla, int qtdAssociacoes) {
 
 //getMapaBits
 
-void setMapaBits(int* mapaBits, int posicao) {
-    int i, bit = 2;
+void* setMapaBits(void* mapaBits, int posicao) {
+    int i, bit = 1, *aux;
+    aux = (int*) mapaBits;
     if ((posicao % 8) == 0) {
-        mapaBits[(posicao / 8)] += 1;
+        aux[(posicao / 8)] += bit;
     } else {
+        bit = 2;
         for (i = 1; i < (posicao % 8); i++) {
-            bit *= bit;
+            bit *= 2;
         }
-        mapaBits[(posicao / 8)] += bit;
+        aux[(posicao / 8)] += bit;
     }
+    return mapaBits;
 }
 
 //preciso de tabela->numeroBlocos, portanto só se eu recebesse como parâmetro
@@ -110,11 +113,11 @@ int inserirRegistros(Tabela* tabela) {
     Tupla* tupla;
     Associacao* associacao;
     Campo* campo;
-    int* mapaBits;
+    void* mapaBits;
     int tamanhoRegistro;
     int numeroDoBloco;
     int quantidadeInsercoes;
-    int i, j;
+    int i, j, aux1;
     short int qtdRegistros, comecoRegistro, espacoLivre, qtdVarchar, tamanhoVar, comecoVar;
 
     if (!tabela) {
@@ -127,7 +130,6 @@ int inserirRegistros(Tabela* tabela) {
         tupla = tabela->tuplas[i];
 
         tamanhoRegistro = getTamanhoRegistro(tupla, tabela->numeroCampos);
-        printf("Tamanho registro: %d\n", tamanhoRegistro);
 
         //Verifica se é possivel inserir o registro, devido ao tamanho dos blocos
         if (tamanhoRegistro >= 2040) {
@@ -136,7 +138,6 @@ int inserirRegistros(Tabela* tabela) {
 
         //Descobre qual bloco deve inserir o registro
         numeroDoBloco = obterBloco(tabela, tamanhoRegistro);
-        printf("numeroBloco: %d\n", numeroDoBloco);
         file = fopen(tabela->nomesArquivosBlocos[numeroDoBloco], "r+");
 
         //Atualiza o cabeçalho do arquivo
@@ -150,13 +151,11 @@ int inserirRegistros(Tabela* tabela) {
 
         //Escreve o novo espaco livre
         fseek(file, 4, SEEK_SET);
-        printf("\nEspa livre: %d\n", espacoLivre);
         espacoLivre -= tamanhoRegistro;
         espacoLivre--;
         fwrite(&espacoLivre, sizeof (espacoLivre), 1, file);
 
         //Escreve ponteiro para o comeco do novo registro
-        printf("\nEspa livre: %d\n", espacoLivre);
         comecoRegistro = espacoLivre + 1;
         fseek(file, 6 + (qtdRegistros * 2), SEEK_SET);
         fwrite(&comecoRegistro, sizeof (comecoRegistro), 1, file);
@@ -164,7 +163,7 @@ int inserirRegistros(Tabela* tabela) {
         //Acrescenta um registro armazanado
         fseek(file, 0, SEEK_SET);
         qtdRegistros++;
-        fwrite(&qtdRegistros, sizeof (qtdRegistros), 1, file);
+        fwrite(&qtdRegistros, sizeof (short int), 1, file);
 
         /*
          * Inserir apontadores varchar
@@ -175,7 +174,7 @@ int inserirRegistros(Tabela* tabela) {
          */
 
         //mapa de bits
-        mapaBits = (int*) calloc((tabela->numeroCampos / 8) + 1, sizeof (int));
+        mapaBits = malloc((tabela->numeroCampos / 8) + 1);
 
         qtdVarchar = -1;
         comecoVar = 0;
@@ -184,11 +183,11 @@ int inserirRegistros(Tabela* tabela) {
             associacao = tupla->associacoes[j];
             campo = associacao->campo;
 
-
             if (campo->tipo == VARCHAR) {
                 qtdVarchar++;
                 tamanhoVar = 0;
                 if (associacao->valor) {
+                    mapaBits = setMapaBits(mapaBits, j);
                     tamanhoVar = strlen(associacao->valor);
                 }
                 if (comecoVar == 0) {
@@ -197,35 +196,26 @@ int inserirRegistros(Tabela* tabela) {
                     comecoVar -= tamanhoVar;
                 }
 
-                printf("Comeco do Var: %d\n", comecoVar);
-                printf("Tamanho do Reg: %d\n", tamanhoRegistro);
-                printf("tamanho var: %d\n", tamanhoVar);
-                printf("comecoRegistros: %d\n", comecoRegistro);
-
-                //insere ponteiro e tamanho do varchar
                 fseek(file, comecoRegistro, SEEK_SET);
                 fwrite(&comecoVar, sizeof (short int), 1, file);
                 fwrite(&tamanhoVar, sizeof (short int), 1, file);
                 //inseri o varchar na posicao correta
-                fseek(file, comecoVar, SEEK_SET);
+                fseek(file, (comecoRegistro + comecoVar), SEEK_SET);
                 fwrite(associacao->valor, tamanhoVar, 1, file);
                 //        printf("debug\n");
-                setMapaBits(mapaBits, j);
                 comecoRegistro += 4;
             }
         }
-
-
+        
         //Insere o restante dos registros
         for (j = 0; j < tabela->numeroCampos; j++) {
-            printf("1comecoRegistros: %d\n", comecoRegistro);
             associacao = tupla->associacoes[j];
             campo = associacao->campo;
 
             if (associacao->valor && (campo->tipo != VARCHAR)) {
                 fseek(file, comecoRegistro, SEEK_SET);
                 if (campo->tipo == INTEGER) {
-                    fwrite(associacao->valor, sizeof (int), 1, file);
+                    fwrite(((int*) associacao->valor), sizeof (int), 1, file);
                     comecoRegistro += 4;
                 } else if (campo->tipo == CHAR) {
                     fwrite(associacao->valor, sizeof (char), campo->bytes, file);
@@ -234,19 +224,24 @@ int inserirRegistros(Tabela* tabela) {
                     fwrite(associacao->valor, sizeof (char), 1, file);
                     comecoRegistro += campo->bytes;
                 }
-                setMapaBits(mapaBits, j);
+                mapaBits = setMapaBits(mapaBits, j);
             }
-            printf("2comecoRegistros: %d\n", comecoRegistro);
         }
-//        inserir mapabits
-//        int la = 0;
-//        int ka = tabela->numeroCampos / 8;
-//        if ((tabela->numeroCampos % 8) != 0) {
-//            ka++;
-//        }
-//        for (; la < ka; la++) {
-//            fwrite(mapaBits[la], sizeof (int), 1, file);
-//        }
+        
+        //inserir mapabits
+        int x = 0;
+        int y = tabela->numeroCampos / 8;
+        char* z;
+        if ((tabela->numeroCampos % 8) != 0) {
+            y++;
+        }
+        z = (char*) mapaBits;
+        printf("\n y: %d",y);
+        printf("\n y: %s",z);
+        for (; x < y; x++) {
+            printf("\n Bit1: %c",z[x]);
+            fwrite(z[x], sizeof (char), 1, file);
+        }
         quantidadeInsercoes++;
 
         free(mapaBits);

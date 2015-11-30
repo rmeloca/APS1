@@ -10,7 +10,7 @@
 void gerarBloco(char* nomeArquivo);
 int obterBloco(Tabela* tabela, int tamanhoRegistro);
 int getTamanhoRegistro(Tupla *tupla, int qtdAss);
-void setMapaBits(int* mapaBits, int posicao);
+void* setMapaBits(void* mapaBits, int posicao);
 int inserirRegistros(Tabela* tabela);
 void carregarRegistros(Tabela* tabela);
 int remover(Tabela* tabela, Campo* campo, char operador, void* valor);

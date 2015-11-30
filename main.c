@@ -53,8 +53,8 @@ int main() {
         switch (option) {
             case 1:
                 printf("Informe o caminho do arquivo: ");
-                scanf("%s", caminhoArquivo);
-//                                caminhoArquivo = "Arquivos/create.sql";
+//                scanf("%s", caminhoArquivo);
+                                caminhoArquivo = "Arquivos/create.sql";
                 if (!normalizarArquivo(caminhoArquivo)) {
                     break;
                 }
@@ -64,8 +64,8 @@ int main() {
                 break;
             case 2:
                 printf("Informe o caminho do arquivo: ");
-                scanf("%s", caminhoArquivo);
-//                                caminhoArquivo = "Arquivos/insert.sql";
+//                scanf("%s", caminhoArquivo);
+                                caminhoArquivo = "Arquivos/insert.sql";
                 if (!normalizarArquivo(caminhoArquivo)) {
                     break;
                 }
